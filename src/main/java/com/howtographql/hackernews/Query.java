@@ -7,14 +7,14 @@ import com.coxautodev.graphql.tools.GraphQLRootResolver;
 
 public class Query implements GraphQLRootResolver {
     
-    private final LinkRepository linkRepository;
+    private final GeographicalCoordinateRepository geographicalCoordinateRepository;
 
-    public Query(LinkRepository linkRepository) {
-        this.linkRepository = linkRepository;
+    public Query(GeographicalCoordinateRepository geographicalCoordinateRepository) {
+        this.geographicalCoordinateRepository = geographicalCoordinateRepository;
     }
 
-    public List<Link> allLinks() {
-        return linkRepository.getAllLinks();
+    public List<GeographicalCoordinate> allGeographicalCoordinates() {
+        return geographicalCoordinateRepository.getAllGeographicalCoordinates();
     }
 
 }
