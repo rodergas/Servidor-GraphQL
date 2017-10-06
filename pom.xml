@@ -31,14 +31,14 @@
 	</dependency>
 	<dependency>
 	    <groupId>virt-jena</groupId>
-	    <artifactId>com.sample</artifactId>
+	    <artifactId>com.robertalmar.pcf</artifactId>
 	    <version>1.0</version>
 	    <scope>system</scope>
 	    <systemPath>${project.basedir}/libs/virt_jena3.jar</systemPath>
 	</dependency>
 	<dependency>
 	    <groupId>virtjdbc4</groupId>
-	    <artifactId>com.sample</artifactId>
+	    <artifactId>com.robertalmar.pcf</artifactId>
 	    <version>1.0</version>
 	    <scope>system</scope>
 	    <systemPath>${project.basedir}/libs/virtjdbc4.jar</systemPath>
