@@ -30,6 +30,30 @@
 	    <version>4.0.0</version>
 	</dependency>
 	<dependency>
+	    <groupId>virt-jena</groupId>
+	    <artifactId>com.sample</artifactId>
+	    <version>1.0</version>
+	    <scope>system</scope>
+	    <systemPath>${project.basedir}/libs/virt_jena3.jar</systemPath>
+	</dependency>
+	<dependency>
+	    <groupId>virtjdbc4</groupId>
+	    <artifactId>com.sample</artifactId>
+	    <version>1.0</version>
+	    <scope>system</scope>
+	    <systemPath>${project.basedir}/libs/virtjdbc4.jar</systemPath>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.jena</groupId>
+	    <artifactId>jena-core</artifactId>
+	    <version>3.4.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.jena</groupId>
+	    <artifactId>jena-arq</artifactId>
+	    <version>3.4.0</version>
+	</dependency>
+	<dependency>
 	    <groupId>javax.servlet</groupId>
 	    <artifactId>javax.servlet-api</artifactId>
 	    <version>3.0.1</version>
