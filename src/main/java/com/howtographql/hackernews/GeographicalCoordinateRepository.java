@@ -75,4 +75,5 @@ public class GeographicalCoordinateRepository{
     public void saveGeographicalCoordinate(GeographicalCoordinate geographicalCoordinate) {
     	GeographicalCoordinates.add(geographicalCoordinate);
     }
+    
 }

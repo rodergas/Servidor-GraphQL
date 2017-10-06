@@ -16,9 +16,10 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
     
     private static GraphQLSchema buildSchema() {
     	GeographicalCoordinateRepository geographicalCoordinateRepository = new GeographicalCoordinateRepository();
+    	BicingStationRepository bicingStationRepository = new BicingStationRepository();
         return SchemaParser.newParser()
                 .file("tfg.graphqls")
-                .resolvers(new Query(geographicalCoordinateRepository))
+                .resolvers(new Query(geographicalCoordinateRepository, bicingStationRepository))
                 .build()
                 .makeExecutableSchema();
     }
