@@ -20,16 +20,17 @@ public class GeographicalCoordinateRepository{
     private final List<GeographicalCoordinate> GeographicalCoordinates;
 
     public GeographicalCoordinateRepository() {
+    	GeographicalCoordinates = new ArrayList<>();
     	
     	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	
-    	/*
-    	Query sparql = QueryFactory.create("select * WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o,'www.example.com'))}");
-    	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-    	Model model = vqe.execConstruct();
     	
-    	StmtIterator it =  model.listStatements();
-    	/*
+    	Query sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example3> WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o,'www.example.com/GeographicalCoordinate'))}");
+    	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+    	Model modelNameInstance = vqe.execConstruct();
+    	
+    	StmtIterator it =  modelNameInstance.listStatements();
+    	//Cuantas instancias hay
 		while (it.hasNext()) {
 		     Statement stmt = it.next();
 		     
@@ -38,11 +39,33 @@ public class GeographicalCoordinateRepository{
 		     RDFNode o = stmt.getObject();
 		     
 		     System.out.println(s.toString() + " " + p.toString() + " " + o.toString());
-		}*/
-    	GeographicalCoordinates = new ArrayList<>();
-        //add some links to start off with
-    	GeographicalCoordinates.add(new GeographicalCoordinate(3.022f, 9.323f));
-    	GeographicalCoordinates.add(new GeographicalCoordinate(4.533f, 1.233f));
+		     
+		     sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example3> WHERE {?s ?p ?o filter ( regex(?s,'"+ s.toString() +"')) filter ( !regex(?o,'www.example.com/GeographicalCoordinate'))}");
+		     vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+		     Model modelValuesIntance = vqe.execConstruct();
+		     //Valores de la instancia
+		     StmtIterator it2 =  modelValuesIntance.listStatements();
+	    	 float latitude = 0.0f;
+	    	 float longitude = 0.0f;
+		     while (it2.hasNext()) {
+
+		    	 Statement stmt2 = it2.next();
+		    	 
+		    	 RDFNode sV = stmt2.getSubject();
+			     RDFNode pV = stmt2.getPredicate();
+			     RDFNode oV = stmt2.getObject();
+			     
+			     
+			     int index = oV.toString().indexOf("^");
+			     String oFinal =  oV.toString().substring(0, index);
+			     
+			     if(pV.toString().contains("latitude")) latitude = Float.parseFloat(oFinal);
+			     else if(pV.toString().contains("longitude")) longitude = Float.parseFloat(oFinal);
+			     
+		     }
+		     GeographicalCoordinates.add(new GeographicalCoordinate(longitude, latitude));
+		}
+    	
     }
 
     public List<GeographicalCoordinate> getAllGeographicalCoordinates() {
