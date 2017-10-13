@@ -3,7 +3,10 @@ package com.howtographql.hackernews;
 import java.util.ArrayList;
 
 
-public class BicingStation extends Infrastructure {
+public class BicingStation implements Infrastructure {
+	private final ArrayList<Infrastructure> nearByInfrastructure;
+	private final GeographicalCoordinate locatedIn;
+	private final String infrastructureType;
 	private final String stationStreetName;
 	private final String stationType;
 	private final Integer stationBikesNumber;
@@ -15,7 +18,9 @@ public class BicingStation extends Infrastructure {
 	private final String stationStatus;
 	
 	public BicingStation(ArrayList<Infrastructure> nearByInfrastructure, GeographicalCoordinate locatedIn, String infrastructureType ,String stationStreetName ,String stationType, Integer stationBikesNumber, Integer stationID, Float stationAltitude, Integer stationSlotsNumber, Integer stationStreetNumber, ArrayList<BicingStation> nearByStation, String stationStatus){
-		super(nearByInfrastructure, locatedIn, infrastructureType);
+		this.nearByInfrastructure = nearByInfrastructure;
+		this.locatedIn = locatedIn;
+		this.infrastructureType = infrastructureType;
 		this.stationStreetName = stationStreetName;
 		this.stationType = stationType;
 		this.stationBikesNumber = stationBikesNumber;
@@ -25,9 +30,22 @@ public class BicingStation extends Infrastructure {
 		this.stationStreetNumber = stationStreetNumber;
 		this.nearByStation = nearByStation;
 		this.stationStatus = stationStatus;
+
 		
 	}
+	
+	public ArrayList<Infrastructure> getNearByInfrastructure(){
+		return nearByInfrastructure;
+	}
 
+	
+	public GeographicalCoordinate getLocatedIn(){
+		return locatedIn;
+	}
+	
+	public String getInfrastructureType(){
+		return infrastructureType;
+	}
 	public String getStationStreetName() {
 		return stationStreetName;
 	}
@@ -63,4 +81,6 @@ public class BicingStation extends Infrastructure {
 	public String getStationStatus() {
 		return stationStatus;
 	}
+
+
 }

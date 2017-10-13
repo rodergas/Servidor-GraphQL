@@ -16,7 +16,7 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class GeographicalCoordinateRepository{
+public class GeographicalCoordinateRepository {
     private final List<GeographicalCoordinate> GeographicalCoordinates;
 
     public GeographicalCoordinateRepository() {
@@ -25,7 +25,7 @@ public class GeographicalCoordinateRepository{
     	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	
     	
-    	Query sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example3> WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o,'www.example.com/GeographicalCoordinate'))}");
+    	Query sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example3> WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/GeographicalCoordinate'))}");
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
     	Model modelNameInstance = vqe.execConstruct();
     	
@@ -38,7 +38,6 @@ public class GeographicalCoordinateRepository{
 		     RDFNode p = stmt.getPredicate();
 		     RDFNode o = stmt.getObject();
 		     
-		     System.out.println(s.toString() + " " + p.toString() + " " + o.toString());
 		     
 		     sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example3> WHERE {?s ?p ?o filter ( regex(?s,'"+ s.toString() +"')) filter ( !regex(?o,'www.example.com/GeographicalCoordinate'))}");
 		     vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -61,7 +60,7 @@ public class GeographicalCoordinateRepository{
 			     
 			     if(pV.toString().contains("latitude")) latitude = Float.parseFloat(oFinal);
 			     else if(pV.toString().contains("longitude")) longitude = Float.parseFloat(oFinal);
-			     
+			     //System.out.println(sV.toString() + " " + pV.toString() + " " + oV.toString());
 		     }
 		     GeographicalCoordinates.add(new GeographicalCoordinate(longitude, latitude));
 		}
@@ -69,6 +68,7 @@ public class GeographicalCoordinateRepository{
     }
 
     public List<GeographicalCoordinate> getAllGeographicalCoordinates() {
+
         return GeographicalCoordinates;
     }
     

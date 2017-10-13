@@ -32,7 +32,7 @@ type BicingStation implements Infrastructure{
 	stationBikesNumber: Int! 
 	stationID: ID! 
 	stationAltitude: Float! 
-	stationSlotsNumber: [Int]! 
+	stationSlotsNumber: Int! 
 	stationStreetNumber: Int! 
 	nearByStation: [BicingStation] 
 	stationStatus: String! 
@@ -46,6 +46,8 @@ type Suburb {
  
  type Query {
   allGeographicalCoordinates: [GeographicalCoordinate]
+  allBicingStations: [BicingStation]
+  allMetroAndBusStops: [MetroAndBusStop]
 }
 
 schema {
