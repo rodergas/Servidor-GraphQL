@@ -29,35 +29,10 @@ public class BicingStationRepository {
 		BicingStations = new ArrayList<>();
 		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	
-		
-		
-    	//Query sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example3> WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/BicingStation'))}");
-    	
-
-		/*
-		Query sparql = QueryFactory.create(" Select * FROM <http://localhost:8890/Example4> WHERE {"
-				+ "?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/BicingStation'))."
-				+ "  ?s ?p2 ?o2 .  "
-				+ "OPTIONAL {?o2 <http://www.example.com/longitude> ?longitude}."
-				+ "OPTIONAL {?o2 <http://www.example.com/latitude> ?latitude}."
-				
-				+ "OPTIONAL {?o2 <http://www.example.com/stationID> ?nearStationID}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationType> ?nearStationType}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationStreetName> ?nearStationStreetName}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationStatus> ?nearStationStatus}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationStreetNumber> ?nearStationStreetNumber}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationSlotsNumber> ?nearStationSlotsNumber}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationBikesNumber> ?nearStationBikesNumber}."
-				+ "OPTIONAL {?o2 <http://www.example.com/stationAltitude> ?nearStationAltitude}."
-				
-				+ "OPTIONAL {?o2 <http://www.example.com/locatedIn> ?o3. ?o3 <http://www.example.com/longitude> ?longitudeNear.}"
-				+ "OPTIONAL {?o2 <http://www.example.com/locatedIn> ?o3. ?o3 <http://www.example.com/latitude> ?latitudeNear.}"
-				+ "}");
-				*/
 		Query sparql = QueryFactory.create("Select * FROM <http://localhost:8890/Example4> WHERE {"
 				+ "?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/BicingStation')).}");
 		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-    	//Model modelNameInstance = vqe.execConstruct();
+
 		ResultSet res = vqe.execSelect();
 		while(res.hasNext()){
 			QuerySolution qs = res.next();
@@ -76,9 +51,24 @@ public class BicingStationRepository {
 					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/stationAltitude> ?stationAltitude}."
 					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/locatedIn> ?o}." //GeographicalCoordinate
 					+ "OPTIONAL {?o <http://www.example.com/longitude> ?longitude}."//GeographicalCoordinate
-					+ "OPTIONAL {?o <http://www.example.com/latitude> ?latitude}.}" //GeographicalCoordinate
-					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/nearByInfrastructure> ?nearByInfrastructure" //nearByInfrastructures
-					+ "");
+					+ "OPTIONAL {?o <http://www.example.com/latitude> ?latitude}." //GeographicalCoordinate
+					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/nearByInfrastructure> ?nearByInfrastructure}." //nearByInfrastructures
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?tipoInfrastructure}." //tipoifnrastructure
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationID> ?nearByInfrastructureStationID}." //biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationType> ?nearByInfrastructureStationType}." //biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationStreetName> ?nearByInfrastructureStationStreetName}." //biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationStatus> ?nearByInfrastructureStationStatus}." //biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationStreetNumber> ?nearByInfrastructureStationStreetNumber}."//biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/slotsNumber> ?nearByInfrastructureSlotsNumber}."//biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationBikesNumber> ?nearByInfrastructureStationBikesNumber}."//biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stationAltitude> ?nearByInfrastructureStationAltitude}."//biciStation
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stopName> ?nearByInfrastructureStopName}." //metrobus
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stopAddress> ?nearByInfrastructureStopAddress}." //metrobus
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/stopPhone> ?nearByInfrastructureStopPhone}." //metrobus
+					+ "OPTIONAL { ?nearByInfrastructure <http://www.example.com/locatedIn> ?nearByInfrastructureLocatedIn}." //GeographicalCoordinateNear
+					+ "OPTIONAL { ?nearByInfrastructureLocatedIn <http://www.example.com/longitude> ?nearByInfrastructureLongitude}."//GeographicalCoordinateNear
+					+ "OPTIONAL { ?nearByInfrastructureLocatedIn <http://www.example.com/latitude> ?nearByInfrastructureLatitude}."//GeographicalCoordinateNear
+					+ "}");
 			
 			vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 	    	//Model modelNameInstance = vqe.execConstruct();
@@ -94,62 +84,80 @@ public class BicingStationRepository {
 			String stationStatus = "";
 			Float latitude = 0.0f;
 			Float longitude = 0.0f;
-			 
+			
+			String nearStationStreetName = "";
+			String nearStationType ="";
+			Integer nearStationBikesNumber = 0;
+			Integer nearStationID = 0;
+			Float nearStationAltitude = 0.0f;
+			Integer nearStationSlotsNumber = 0;
+			Integer nearStationStreetNumber = 0;
+			String nearStationStatus = "";
+			Float nearLatitude = 0.0f;
+			Float nearLongitude = 0.0f;
+			ArrayList<Infrastructure> nearByInfrastructure = new ArrayList<>();
 			while(res2.hasNext()){
 				QuerySolution qs2 = res2.next();
-				
 				String resultat = "";
 				
-				if(qs2.get("longitude") != null){
-					resultat = modifyScalarValue(qs2.get("longitude").toString());
-
-					longitude = Float.parseFloat(resultat);
+				if(valid(qs2, "longitude")){
+					longitude = Float.parseFloat(modifyScalarValue(qs2.get("longitude").toString()));
 				}
-				if(qs2.get("latitude") != null){
-					resultat = modifyScalarValue(qs2.get("latitude").toString());
-					latitude = Float.parseFloat(resultat);		
+				if(valid(qs2, "latitude")){
+					latitude = Float.parseFloat(modifyScalarValue(qs2.get("latitude").toString()));	
 				}
-				if(qs2.get("stationStreetName") != null){
-					resultat = modifyScalarValue(qs2.get("stationStreetName").toString());
-					stationStreetName = resultat;
+				if(valid(qs2, "stationStreetName")){
+					stationStreetName = modifyScalarValue(qs2.get("stationStreetName").toString());
 				}
-				if(qs2.get("stationType") != null){
-					resultat = modifyScalarValue(qs2.get("stationType").toString());
-					stationType = resultat;
+				if(valid(qs2, "stationType")){
+					stationType = modifyScalarValue(qs2.get("stationType").toString());
 				}
-				if(qs2.get("stationBikesNumber") != null){
-					resultat = modifyScalarValue(qs2.get("stationBikesNumber").toString());
-					stationBikesNumber = Integer.parseInt(resultat);
+				if(valid(qs2, "stationBikesNumber")){
+					stationBikesNumber = Integer.parseInt(modifyScalarValue(qs2.get("stationBikesNumber").toString()));
 				}
-				if(qs2.get("stationID") != null){
-					resultat = modifyScalarValue(qs2.get("stationID").toString());
-					stationID = Integer.parseInt(resultat);
+				if(valid(qs2, "stationID")){
+					stationID = Integer.parseInt(modifyScalarValue(qs2.get("stationID").toString()));
 				}
-				if(qs2.get("stationAltitude") != null){
-					resultat = modifyScalarValue(qs2.get("stationAltitude").toString());
-					stationAltitude = Float.parseFloat(resultat);
+				if(valid(qs2, "stationAltitude")){
+					stationAltitude = Float.parseFloat(modifyScalarValue(qs2.get("stationAltitude").toString()));
 				}
-				if(qs2.get("stationSlotsNumber") != null){
-					resultat = modifyScalarValue(qs2.get("stationSlotsNumber").toString());
-					stationSlotsNumber = Integer.parseInt(resultat);
+				if(valid(qs2, "stationSlotsNumber")){
+					stationSlotsNumber = Integer.parseInt(modifyScalarValue(qs2.get("stationSlotsNumber").toString()));
 				}
-				if(qs2.get("stationStreetNumber") != null){
-					resultat = modifyScalarValue(qs2.get("stationStreetNumber").toString());
-					stationStreetNumber = Integer.parseInt(resultat);
+				if(valid(qs2, "stationStreetNumber")){
+					stationStreetNumber = Integer.parseInt(modifyScalarValue(qs2.get("stationStreetNumber").toString()));
 				}
-				if(qs2.get("stationStatus") != null){
-					resultat = modifyScalarValue(qs2.get("stationStatus").toString());
-					stationStatus = resultat;
+				if(valid(qs2, "stationStatus")){
+					stationStatus = modifyScalarValue(qs2.get("stationStatus").toString());
 				}
 				
-				if(qs2.get("nearByInfrastructure") != null){
-					
+				if(valid(qs2, "nearByInfrastructure")){
+					if(qs2.get("tipoInfrastructure").toString().contains("BicingStation")){
+						
+						if(valid(qs2, "nearByInfrastructureStationStreetName")) nearStationStreetName =  modifyScalarValue(qs2.get("nearByInfrastructureStationStreetName").toString());
+						if(valid(qs2, "nearByInfrastructureStationType")) nearStationType = modifyScalarValue(qs2.get("nearByInfrastructureStationType").toString());
+						if(valid(qs2, "nearByInfrastructureStationBikesNumber")) nearStationBikesNumber = Integer.parseInt(modifyScalarValue(qs2.get("nearByInfrastructureStationBikesNumber").toString()));
+						if(valid(qs2, "nearByInfrastructureStationID")) nearStationID = Integer.parseInt(modifyScalarValue(qs2.get("nearByInfrastructureStationID").toString()));
+						if(valid(qs2, "nearByInfrastructureStationAltitude")) nearStationAltitude = Float.parseFloat(modifyScalarValue(qs2.get("nearByInfrastructureStationAltitude").toString()));
+						if(valid(qs2, "nearByInfrastructureSlotsNumber")) nearStationSlotsNumber = Integer.parseInt(modifyScalarValue(qs2.get("nearByInfrastructureSlotsNumber").toString()));
+						if(valid(qs2, "nearByInfrastructureStationStreetNumber")) nearStationStreetNumber = Integer.parseInt(modifyScalarValue(qs2.get("nearByInfrastructureStationStreetNumber").toString()));
+						if(valid(qs2, "nearByInfrastructureStationStatus")) nearStationStatus = modifyScalarValue(qs2.get("nearByInfrastructureStationStatus").toString());
+						if(valid(qs2, "nearByInfrastructureLatitude")) nearLatitude = Float.parseFloat(modifyScalarValue(qs2.get("nearByInfrastructureLatitude").toString()));
+						if(valid(qs2, "nearByInfrastructureLongitude")) nearLongitude = Float.parseFloat(modifyScalarValue(qs2.get("nearByInfrastructureLongitude").toString()));
+
+						System.out.println("entrooooo " + nearLongitude + " " + nearLatitude);
+						nearByInfrastructure.add(new BicingStation(null, new GeographicalCoordinate(nearLongitude, nearLatitude), "BicingStation", nearStationStreetName,nearStationType,nearStationBikesNumber, nearStationID, nearStationAltitude, nearStationSlotsNumber, nearStationStreetNumber, null,nearStationStatus ));
+						
+					}else if(qs2.get("tipoInfrastructure").toString().contains("MetroAndBusStop")){
+						
+					}
 				}
 
-				
+				System.out.println("-----------------------");
 			}
 			
-			BicingStations.add(new BicingStation(null, new GeographicalCoordinate(longitude, latitude), "BicingStation", stationStreetName, stationType, stationBikesNumber, stationID, stationAltitude, stationSlotsNumber, stationStreetNumber, null, stationStatus));
+			BicingStations.add(new BicingStation(nearByInfrastructure, new GeographicalCoordinate(longitude, latitude), "BicingStation", stationStreetName, stationType, stationBikesNumber, stationID, stationAltitude, stationSlotsNumber, stationStreetNumber, null, stationStatus));
+			nearByInfrastructure = new ArrayList<>();
 		}
 			
 
@@ -285,5 +293,10 @@ public class BicingStationRepository {
     	int index = value.toString().indexOf("^");
 		String resultat =  value.toString().substring(0, index);
 		return resultat;
+    }
+    
+    public boolean valid(QuerySolution qs , String value){
+    	if(qs.get(value) != null) return true;
+    	else return false;
     }
 }

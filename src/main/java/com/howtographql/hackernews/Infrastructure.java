@@ -1,6 +1,7 @@
 package com.howtographql.hackernews;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface Infrastructure {
 
