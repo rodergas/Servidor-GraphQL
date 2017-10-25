@@ -1,14 +1,13 @@
-package com.howtographql.hackernews;
+package com.robertalmar.tfg.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public interface Infrastructure {
-
-
-	ArrayList<Infrastructure> getNearByInfrastructure();
-	GeographicalCoordinate getLocatedIn();
-	String getInfrastructureType();
 	
+	ArrayList<Infrastructure> getNearByInfrastructure();
+	
+	GeographicalCoordinate getLocatedIn();
+	
+	String getInfrastructureType();
 	
 }

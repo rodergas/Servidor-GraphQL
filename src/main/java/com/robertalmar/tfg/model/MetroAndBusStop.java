@@ -1,13 +1,19 @@
-package com.howtographql.hackernews;
+package com.robertalmar.tfg.model;
 
 import java.util.ArrayList;
 
 public class MetroAndBusStop implements Infrastructure {
+	
 	private final ArrayList<Infrastructure> nearByInfrastructure;
+
 	private final GeographicalCoordinate locatedIn;
+	
 	private final String infrastructureType;
+	
 	private final String stopAddress;
+	
 	private final Integer stopPhone;
+	
 	private final String stopName;
 
 	
@@ -44,7 +50,5 @@ public class MetroAndBusStop implements Infrastructure {
 	public String getStopName() {
 		return stopName;
 	}
-	
 
-	
 }

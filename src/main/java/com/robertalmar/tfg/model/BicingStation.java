@@ -1,20 +1,33 @@
-package com.howtographql.hackernews;
+package com.robertalmar.tfg.model;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 public class BicingStation implements Infrastructure {
+
 	private final ArrayList<Infrastructure> nearByInfrastructure;
+	
 	private final GeographicalCoordinate locatedIn;
+	
 	private final String infrastructureType;
+	
 	private final String stationStreetName;
+	
 	private final String stationType;
+	
 	private final Integer stationBikesNumber;
+	
 	private final Integer stationID;
+	
 	private final Float stationAltitude;
+	
 	private final Integer stationSlotsNumber;
+	
 	private final Integer stationStreetNumber;
+	
 	private final ArrayList<BicingStation> nearByStation;
+	
 	private final String stationStatus;
 	
 	public BicingStation(ArrayList<Infrastructure> nearByInfrastructure, GeographicalCoordinate locatedIn, String infrastructureType ,String stationStreetName ,String stationType, Integer stationBikesNumber, Integer stationID, Float stationAltitude, Integer stationSlotsNumber, Integer stationStreetNumber, ArrayList<BicingStation> nearByStation, String stationStatus){
@@ -29,9 +42,7 @@ public class BicingStation implements Infrastructure {
 		this.stationSlotsNumber = stationSlotsNumber;
 		this.stationStreetNumber = stationStreetNumber;
 		this.nearByStation = nearByStation;
-		this.stationStatus = stationStatus;
-
-		
+		this.stationStatus = stationStatus;		
 	}
 	
 	public ArrayList<Infrastructure> getNearByInfrastructure(){
@@ -81,6 +92,8 @@ public class BicingStation implements Infrastructure {
 	public String getStationStatus() {
 		return stationStatus;
 	}
-
-
+	
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this);
+	}
 }

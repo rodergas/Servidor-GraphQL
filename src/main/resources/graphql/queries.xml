@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+	<entry key="getGeographicalCoordinates">
+	    <![CDATA[
+	        SELECT * 
+	        FROM ?dbIri
+	        WHERE {?s ?p ?o 
+	        		filter ( regex(?s,'www.instance.com')) 
+	        		filter ( regex(?o, 'www.example.com/GeographicalCoordinate'))
+	        		}
+	    ]]>
+	</entry>
+	
+	<entry key="getLatLon">
+	    <![CDATA[
+	        SELECT * 
+	        FROM ?dbIri WHERE {
+				OPTIONAL {?locationIri <http://www.example.com/longitude> ?longitude}.
+				OPTIONAL {?locationIri <http://www.example.com/latitude> ?latitude}.
+			}
+		]]>
+	</entry>
+</properties>

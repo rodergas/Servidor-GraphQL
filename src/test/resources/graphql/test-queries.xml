@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+
+<properties>
+	<entry key="testQuery">
+	    <![CDATA[
+	        SELECT  *
+			FROM <http://localhost:8890/Example3>
+			WHERE
+			  { ?s  ?p  ?o
+			    FILTER regex(?s, "www.instance.com")
+			    FILTER regex(?o, "www.example.com/GeographicalCoordinate")
+			  }
+	    ]]>
+	</entry>
+</properties>

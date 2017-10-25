@@ -1,34 +1,40 @@
-package com.howtographql.hackernews;
+package com.robertalmar.tfg.repository;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.NodeIterator;
 import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.RSIterator;
-import org.apache.jena.rdf.model.ReifiedStatement;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
+import org.springframework.stereotype.Component;
+
+import com.robertalmar.tfg.model.BicingStation;
+import com.robertalmar.tfg.model.GeographicalCoordinate;
+import com.robertalmar.tfg.model.Infrastructure;
+import com.robertalmar.tfg.query.SparqlQueryProvider;
 
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class BicingStationRepository {
-	private final List<BicingStation> BicingStations;
+@Component
+public class BicingStationRepository extends BaseRepository {
 	
-	public BicingStationRepository(){
+	private final List<BicingStation> bicingStations;
+	
+	
+	public BicingStationRepository(VirtGraph graph, SparqlQueryProvider queryProvider){
+		super(graph, queryProvider);
 		
-		BicingStations = new ArrayList<>();
-		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+		bicingStations = new ArrayList<>();
+		
+		executeQuery();
+	}
+		
     	
+	private void executeQuery() {	
 		Query sparql = QueryFactory.create("Select * FROM <http://localhost:8890/Example4> WHERE {"
 				+ "?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/BicingStation')).}");
 		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -156,7 +162,7 @@ public class BicingStationRepository {
 				System.out.println("-----------------------");
 			}
 			
-			BicingStations.add(new BicingStation(nearByInfrastructure, new GeographicalCoordinate(longitude, latitude), "BicingStation", stationStreetName, stationType, stationBikesNumber, stationID, stationAltitude, stationSlotsNumber, stationStreetNumber, null, stationStatus));
+			bicingStations.add(new BicingStation(nearByInfrastructure, new GeographicalCoordinate(longitude, latitude), "BicingStation", stationStreetName, stationType, stationBikesNumber, stationID, stationAltitude, stationSlotsNumber, stationStreetNumber, null, stationStatus));
 			nearByInfrastructure = new ArrayList<>();
 		}
 			
@@ -283,20 +289,19 @@ public class BicingStationRepository {
 		     BicingStations.add(new BicingStation(null, null, "BicingStation", stationStreetName, stationType, stationBikesNumber, stationID, stationAltitude, stationSlotsNumber, stationStreetNumber, null, stationStatus));
 		}
 		*/
+
 	}
 	
     public List<BicingStation> getAllBicingStations() {
-        return BicingStations;
-    }
-    
-    public String modifyScalarValue(String value){
-    	int index = value.toString().indexOf("^");
-		String resultat =  value.toString().substring(0, index);
-		return resultat;
+        return bicingStations;
     }
     
     public boolean valid(QuerySolution qs , String value){
     	if(qs.get(value) != null) return true;
     	else return false;
+    }
+    public String modifyScalarValue(String value){
+    		int index = value.indexOf("^");
+		return  value.substring(0, index);
     }
 }
