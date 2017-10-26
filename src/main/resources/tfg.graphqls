@@ -48,6 +48,8 @@ type Suburb {
   allGeographicalCoordinates: [GeographicalCoordinate]
   allBicingStations: [BicingStation]
   allMetroAndBusStops: [MetroAndBusStop]
+  allDistricts: [District]
+  allSuburbs: [Suburb]
 }
 
 schema {

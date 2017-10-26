@@ -4,7 +4,7 @@ public class District {
 	private Integer districtNumber;
 	private String districtName;
 	
-	public District(Integer districtNumber, String districtName){
+	public District(String districtName, Integer districtNumber){
 		this.setDistrictNumber(districtNumber);
 		this.setDistrictName(districtName);
 	}
