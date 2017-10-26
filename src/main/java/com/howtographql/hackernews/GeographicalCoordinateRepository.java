@@ -65,8 +65,7 @@ public class GeographicalCoordinateRepository {
     }
     
     public boolean valid(QuerySolution qs , String value){
-    	if(qs.get(value) != null) return true;
-    	else return false;
+    	return qs.get(value) != null;
     }
     
     public String modifyScalarValue(String value){

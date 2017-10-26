@@ -10,12 +10,16 @@ public class Query implements GraphQLQueryResolver {
     private final GeographicalCoordinateRepository geographicalCoordinateRepository;
     private final BicingStationRepository bicingStationRepository;
     private final MetroAndBusStopRepository metroAndBusStopRepository;
+    private final DistrictRepository districtRepository;
+    private final SuburbRepository suburbRepository;
 
 
-    public Query(GeographicalCoordinateRepository geographicalCoordinateRepository, BicingStationRepository bicingStationRepository, MetroAndBusStopRepository metroAndBusStopRepository ) {
+    public Query(GeographicalCoordinateRepository geographicalCoordinateRepository, BicingStationRepository bicingStationRepository, MetroAndBusStopRepository metroAndBusStopRepository, DistrictRepository districtRepository, SuburbRepository suburbRepository ) {
         this.geographicalCoordinateRepository = geographicalCoordinateRepository;
         this.bicingStationRepository = bicingStationRepository;
         this.metroAndBusStopRepository = metroAndBusStopRepository;
+        this.districtRepository = districtRepository;
+        this.suburbRepository = suburbRepository;
 
     }
 
@@ -31,6 +35,14 @@ public class Query implements GraphQLQueryResolver {
     
     public List<MetroAndBusStop> allMetroAndBusStops() {
         return metroAndBusStopRepository.getAllMetroAndBusStops();
+    }
+    
+    public List<Suburb> allSuburbs(){
+    	return suburbRepository.getAllSuburbs();
+    }
+    
+    public List<District> allDistricts(){
+    	return districtRepository.getAllDistricts();
     }
 	
 }

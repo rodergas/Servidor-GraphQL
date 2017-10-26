@@ -18,9 +18,13 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
     	GeographicalCoordinateRepository geographicalCoordinateRepository = new GeographicalCoordinateRepository();
     	BicingStationRepository bicingStationRepository = new BicingStationRepository();
     	MetroAndBusStopRepository metroAndBusStopRepository = new MetroAndBusStopRepository();
+    	DistrictRepository districtRepository = new DistrictRepository();
+    	SuburbRepository suburbRepository = new SuburbRepository();
+    	
+    	
         return SchemaParser.newParser()
                 .file("tfg.graphqls")
-                .resolvers(new Query(geographicalCoordinateRepository,bicingStationRepository, metroAndBusStopRepository))
+                .resolvers(new Query(geographicalCoordinateRepository,bicingStationRepository, metroAndBusStopRepository, districtRepository, suburbRepository))
                 //.dictionary(MetroAndBusStop.class)
                 .build()
                 .makeExecutableSchema();
