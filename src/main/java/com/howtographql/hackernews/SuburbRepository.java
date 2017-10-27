@@ -49,6 +49,7 @@ VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111
 					+ "OPTIONAL { ?provideStop <http://www.example.com/locatedIn> ?provideStopLocation.}"
 					+ "OPTIONAL { ?provideStopLocation <http://www.example.com/longitude> ?provideStopLongitude.}"
 					+ "OPTIONAL { ?provideStopLocation <http://www.example.com/latitude> ?provideStopLatitude.}"
+
 					+ "}."
 					+ "}");
 			
@@ -167,7 +168,7 @@ VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111
 					providesStop.add(new MetroAndBusStop(nearInfrastructureProvideStop, new GeographicalCoordinate(longitude, latitude), "MetroAndBusStop", provideStopAddress, provideStopPhone, provideStopName));
 					nearInfrastructureProvideStop = new ArrayList<>();
 				}
-				
+				System.out.println("----------");
 
 				
 			}
