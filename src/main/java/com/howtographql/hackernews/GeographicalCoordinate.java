@@ -29,11 +29,11 @@ public class GeographicalCoordinate {
 
 	public Float getLongitude() {
 		
-		return Float.parseFloat(modifyScalarValue(connectVirtuoso("longitude").get(0)));
+		return Float.parseFloat(modifyScalarValue(connectVirtuoso("http://www.example.com/longitude").get(0)));
 	}
 
 	public Float getLatitude() {
-		return Float.parseFloat(modifyScalarValue(connectVirtuoso("latitude").get(0)));
+		return Float.parseFloat(modifyScalarValue(connectVirtuoso("http://www.example.com/latitude").get(0)));
 	}
 	
 	private String getIdTurtle() {
@@ -47,7 +47,7 @@ public class GeographicalCoordinate {
     private ArrayList<String> connectVirtuoso(String value){
 		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <http://www.example.com/"+  value + "> ?valor}."
+				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
 				+ "}");
 
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);

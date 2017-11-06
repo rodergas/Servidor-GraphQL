@@ -24,23 +24,22 @@ public class MetroAndBusStop implements Infrastructure {
 	public MetroAndBusStop(String idTurtle){
 		this.setIdTurtle(idTurtle);
 	}
-	
-	public MetroAndBusStop(ArrayList<Infrastructure> nearByInfrastructure, GeographicalCoordinate locatedIn, String infrastructureType, String stopAddress, Integer stopPhone, String stopName){
-		this.nearByInfrastructure = nearByInfrastructure;
-		this.locatedIn = locatedIn;
-		this.infrastructureType = infrastructureType;
-		this.stopAddress = stopAddress;
-		this.stopPhone = stopPhone;
-		this.stopName = stopName;
 
-	}
 	
 	public ArrayList<Infrastructure> getNearByInfrastructure(){
-		return nearByInfrastructure;
+		ArrayList<String> nearByInfrastructure = connectVirtuoso("http://www.example.com/nearByInfrastructure");
+		ArrayList<Infrastructure> nearByInfrastructures = new ArrayList<>();
+
+	    for(String id: nearByInfrastructure){
+	    	if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/MetroAndBusStop")) nearByInfrastructures.add(new MetroAndBusStop(id));   
+	    	else if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/BicingStation")) nearByInfrastructures.add(new BicingStation(id));  
+	    } 
+
+		return nearByInfrastructures;
 	}
 	
 	public GeographicalCoordinate getLocatedIn(){
-		return new GeographicalCoordinate(connectVirtuoso("locatedIn").get(0));
+		return new GeographicalCoordinate(connectVirtuoso("http://www.example.com/locatedIn").get(0));
 	}
 	
 	public String getInfrastructureType(){
@@ -48,15 +47,15 @@ public class MetroAndBusStop implements Infrastructure {
 	}
 
 	public String getStopAddress() {
-		return modifyScalarValue(connectVirtuoso("stopAddress").get(0));
+		return modifyScalarValue(connectVirtuoso("http://www.example.com/stopAddress").get(0));
 	}
 
 	public Integer getStopPhone() {
-		return Integer.parseInt(modifyScalarValue(connectVirtuoso("stopPhone").get(0)));
+		return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/stopPhone").get(0)));
 	}
 
 	public String getStopName() {
-		return modifyScalarValue(connectVirtuoso("stopName").get(0));
+		return modifyScalarValue(connectVirtuoso("http://www.example.com/stopName").get(0));
 	}
 
 	private String getIdTurtle() {
@@ -70,7 +69,7 @@ public class MetroAndBusStop implements Infrastructure {
     private ArrayList<String> connectVirtuoso(String value){
 		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <http://www.example.com/"+  value + "> ?valor}."
+				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
 				+ "}");
 
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -85,6 +84,27 @@ public class MetroAndBusStop implements Infrastructure {
 		graph.close();
 		return valor;
     }
+    
+    private ArrayList<String> connectVirtuoso(String value, String id){
+		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    	Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
+				+ "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
+				+ "}");
+
+    	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+		ResultSet res = vqe.execSelect();
+		ArrayList<String> valor = new ArrayList<>();
+		
+		while(res.hasNext()){
+			QuerySolution qs = res.next();
+			valor.add(qs.get("?valor").toString());
+		}
+    	
+		graph.close();
+		return valor;
+    }
+    
+
 	
     private String modifyScalarValue(String value){
     	int index = value.toString().indexOf("^");

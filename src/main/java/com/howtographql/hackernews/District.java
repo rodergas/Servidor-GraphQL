@@ -27,7 +27,7 @@ public class District {
 	}
 
 	public Integer getDistrictNumber() {
-		return Integer.parseInt(modifyScalarValue(connectVirtuoso("districtNumber").get(0)));
+		return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/districtNumber").get(0)));
 	}
 
 	public void setDistrictNumber(Integer districtNumber) {
@@ -35,7 +35,7 @@ public class District {
 	}
 
 	public String getDistrictName() {
-		return modifyScalarValue(connectVirtuoso("districtName").get(0));
+		return modifyScalarValue(connectVirtuoso("http://www.example.com/districtName").get(0));
 	}
 
 	public void setDistrictName(String districtName) {
@@ -59,7 +59,7 @@ public class District {
     private ArrayList<String> connectVirtuoso(String value){
 		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <http://www.example.com/"+  value + "> ?valor}."
+				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
 				+ "}");
 
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -67,6 +67,7 @@ public class District {
 		ArrayList<String> valor = new ArrayList<>();
 		
 		while(res.hasNext()){
+
 			QuerySolution qs = res.next();
 			valor.add(qs.get("?valor").toString());
 		}
