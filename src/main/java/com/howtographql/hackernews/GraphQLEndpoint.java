@@ -22,6 +22,8 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
     	SuburbRepository suburbRepository = new SuburbRepository();
     	
     	
+    	
+    	
         return SchemaParser.newParser()
                 .file("tfg.graphqls")
                 .resolvers(new Query(geographicalCoordinateRepository,bicingStationRepository, metroAndBusStopRepository, districtRepository, suburbRepository))

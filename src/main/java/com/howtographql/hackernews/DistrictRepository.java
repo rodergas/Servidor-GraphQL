@@ -22,29 +22,26 @@ public class DistrictRepository {
 		
     	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	
-    	Query sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example4> WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/District'))}");
+    	Query sparql = QueryFactory.create("Select ?subject ?districtName ?districtNumber FROM <http://localhost:8890/Example4> WHERE {"
+    			+ "OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/District>}."
+    			+ "OPTIONAL {?subject <http://www.example.com/districtName> ?districtName}."
+				+ "OPTIONAL {?subject <http://www.example.com/districtNumber> ?districtNumber}."
+				+ "}");
 
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 		ResultSet res = vqe.execSelect();
     	
 		while(res.hasNext()){
 			QuerySolution qs = res.next();
-			RDFNode subject = qs.get("s");
-			sparql = QueryFactory.create("Select * FROM <http://localhost:8890/Example4> WHERE {"
-					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/districtName> ?districtName}."
-					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/districtNumber> ?districtNumber}."
-					+ "}");
 			
 			vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-			ResultSet res2 = vqe.execSelect();
 			
 			String districtName = "";
 			Integer districtNumber = 0;
-			while(res2.hasNext()){
-				QuerySolution qs2 = res2.next();
-				if(valid(qs2, "districtName")) districtName = modifyScalarValue(qs2.get("districtName").toString());	
-				if(valid(qs2, "districtNumber")) districtNumber = Integer.parseInt(modifyScalarValue(qs2.get("districtNumber").toString()));
-			}
+
+			if(qs.contains("districtName")) districtName = modifyScalarValue(qs.get("districtName").toString());	
+			if(qs.contains("districtNumber")) districtNumber = Integer.parseInt(modifyScalarValue(qs.get("districtNumber").toString()));
+
 			 Districts.add(new District(districtName, districtNumber));
 		}
 	}
@@ -53,10 +50,6 @@ public class DistrictRepository {
         return Districts;
     }
     
-    
-    public boolean valid(QuerySolution qs , String value){
-    	return qs.get(value) != null;
-    }
     
     public String modifyScalarValue(String value){
     	int index = value.toString().indexOf("^");

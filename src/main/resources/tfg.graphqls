@@ -50,6 +50,7 @@ type Suburb {
   allMetroAndBusStops: [MetroAndBusStop]
   allDistricts: [District]
   allSuburbs: [Suburb]
+  getMetroAndBusStop(name: String) : MetroAndBusStop
 }
 
 schema {

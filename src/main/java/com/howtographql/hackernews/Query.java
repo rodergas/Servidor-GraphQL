@@ -44,5 +44,9 @@ public class Query implements GraphQLQueryResolver {
     public List<District> allDistricts(){
     	return districtRepository.getAllDistricts();
     }
+    
+    public MetroAndBusStop getMetroAndBusStop(String name){
+    	return metroAndBusStopRepository.getMetroAndBusStop(name);
+    }
 	
 }

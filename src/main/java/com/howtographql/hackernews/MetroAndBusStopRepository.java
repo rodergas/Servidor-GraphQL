@@ -147,6 +147,35 @@ public class MetroAndBusStopRepository {
         return MetroAndBusStops;
     }
     
+    public MetroAndBusStop getMetroAndBusStop(String name){
+    	
+    	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+		Query sparql = QueryFactory.create("Select * FROM <http://localhost:8890/Example4> WHERE {"
+				+ "OPTIONAL {<" +  name + "> <http://www.example.com/stopName> ?stopName}." //metrobus
+				+ "OPTIONAL {<" + name + "> <http://www.example.com/stopAddress> ?stopAddress}." //metrobus
+				+ "OPTIONAL {<" + name + "> <http://www.example.com/stopPhone> ?stopPhone}."
+			+ "}");
+		
+		VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+		ResultSet res = vqe.execSelect();
+		
+		String stopName = "";
+		String stopAddress = "";
+		Integer stopPhone = 0;
+		while(res.hasNext()){
+			QuerySolution qs = res.next();
+			if(qs.contains("stopName")) stopName =  modifyScalarValue(qs.get("stopName").toString());
+			if(qs.contains("stopAddress")) stopAddress = modifyScalarValue(qs.get("stopAddress").toString());
+			if(qs.contains("stopPhone")) stopPhone = Integer.parseInt(modifyScalarValue(qs.get("stopPhone").toString()));
+			
+		}
+		return new MetroAndBusStop(null, null, "MetroAndBusStop" , stopAddress,  stopPhone, stopName);
+		
+		
+    }
+    
+
+    
     public String modifyScalarValue(String value){
     	int index = value.toString().indexOf("^");
 		String resultat =  value.toString().substring(0, index);

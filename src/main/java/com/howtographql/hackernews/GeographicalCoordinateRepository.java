@@ -23,54 +23,19 @@ public class GeographicalCoordinateRepository {
 
     public GeographicalCoordinateRepository() {
     	GeographicalCoordinates = new ArrayList<>();
-    	/*
-    	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    	
-    	Query sparql = QueryFactory.create("select * FROM <http://localhost:8890/Example4> WHERE {?s ?p ?o filter ( regex(?s,'www.instance.com')) filter ( regex(?o, 'www.example.com/GeographicalCoordinate'))}");
 
-    	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-		ResultSet res = vqe.execSelect();
-    	
-		while(res.hasNext()){
-			QuerySolution qs = res.next();
-			RDFNode subject = qs.get("s");
-			sparql = QueryFactory.create("Select * FROM <http://localhost:8890/Example4> WHERE {"
-					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/longitude> ?longitude}."
-					+ "OPTIONAL {<" + subject.toString() + "> <http://www.example.com/latitude> ?latitude}."
-					+ "}");
-			
-			vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-			ResultSet res2 = vqe.execSelect();
-			
-			Float latitude = 0.0f;
-			Float longitude = 0.0f;
-			while(res2.hasNext()){
-				QuerySolution qs2 = res2.next();
-				if(valid(qs2, "latitude")) latitude = Float.parseFloat(modifyScalarValue(qs2.get("latitude").toString()));	
-				if(valid(qs2, "longitude"))	longitude = Float.parseFloat(modifyScalarValue(qs2.get("longitude").toString()));
-			}
-			 GeographicalCoordinates.add(new GeographicalCoordinate(longitude, latitude));
-		}
-    	*/
     	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	
-    	Query sparql = QueryFactory.create("Select ?subject ?longitude ?latitude FROM <http://localhost:8890/Example4> WHERE {"
+    	Query sparql = QueryFactory.create("Select ?subject  FROM <http://localhost:8890/Example4> WHERE {"
     			+ "OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/GeographicalCoordinate>}."
-				+ "OPTIONAL { ?subject <http://www.example.com/longitude> ?longitude}."
-				+ "OPTIONAL { ?subject <http://www.example.com/latitude> ?latitude}."
 				+ "}");
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 		ResultSet res = vqe.execSelect();
     	
 		while(res.hasNext()){
 			QuerySolution qs = res.next();
-			System.out.println("GEO  " + qs.toString());
-			
-			Float latitude = 0.0f;
-			Float longitude = 0.0f;
-			if(qs.contains("latitude")) latitude = Float.parseFloat(modifyScalarValue(qs.get("latitude").toString()));	
-			if(qs.contains("longitude")) longitude = Float.parseFloat(modifyScalarValue(qs.get("longitude").toString()));
-			 GeographicalCoordinates.add(new GeographicalCoordinate(longitude, latitude));
+			String subject = qs.get("?subject").toString();
+			GeographicalCoordinates.add(new GeographicalCoordinate(subject));
 		}
     }
 
@@ -83,9 +48,6 @@ public class GeographicalCoordinateRepository {
     	GeographicalCoordinates.add(geographicalCoordinate);
     }
     
-    public boolean valid(QuerySolution qs , String value){
-    	return qs.get(value) != null;
-    }
     
     public String modifyScalarValue(String value){
     	int index = value.toString().indexOf("^");
