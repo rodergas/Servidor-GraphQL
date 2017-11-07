@@ -20,30 +20,22 @@ public class DistrictRepository {
 	public DistrictRepository(){
 		Districts = new ArrayList<>();
 		
-    	VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     	
-    	Query sparql = QueryFactory.create("Select ?subject ?districtName ?districtNumber FROM <http://localhost:8890/Example4> WHERE {"
+    	Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Example4> WHERE {"
     			+ "OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/District>}."
-    			+ "OPTIONAL {?subject <http://www.example.com/districtName> ?districtName}."
-				+ "OPTIONAL {?subject <http://www.example.com/districtNumber> ?districtNumber}."
 				+ "}");
-
+				
     	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
 		ResultSet res = vqe.execSelect();
-    	
+		
 		while(res.hasNext()){
 			QuerySolution qs = res.next();
-			
-			vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-			
-			String districtName = "";
-			Integer districtNumber = 0;
-
-			if(qs.contains("districtName")) districtName = modifyScalarValue(qs.get("districtName").toString());	
-			if(qs.contains("districtNumber")) districtNumber = Integer.parseInt(modifyScalarValue(qs.get("districtNumber").toString()));
-
-			 Districts.add(new District(districtName, districtNumber));
+			String subject = qs.get("?subject").toString();
+			Districts.add(new District(subject));
 		}
+    	
+		graph.close();
 	}
 	
     public List<District> getAllDistricts() {

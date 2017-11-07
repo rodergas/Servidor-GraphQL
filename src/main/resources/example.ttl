@@ -24,29 +24,29 @@ ex:District  a  gql:Object .
 
 ###  Instances  ###
 
-ins:Localitzacio a ex:GeographicalCoordinate ;
+ex:Localitzacio a ex:GeographicalCoordinate ;
 	ex:longitude "2.43"^^xsd:float ;
 	ex:latitude "3.43"^^xsd:float .
 	
-ins:Localitzacio2 a ex:GeographicalCoordinate ;
+ex:Localitzacio2 a ex:GeographicalCoordinate ;
 	ex:longitude "1.22"^^xsd:float ;
 	ex:latitude "1.90"^^xsd:float .
 	
-ins:Localitzacio3 a ex:GeographicalCoordinate ;
+ex:Localitzacio3 a ex:GeographicalCoordinate ;
 	ex:longitude "0.22"^^xsd:float ;
 	ex:latitude "0.90"^^xsd:float .
 	
-ins:Localitzacio4 a ex:GeographicalCoordinate ;
+ex:Localitzacio4 a ex:GeographicalCoordinate ;
 	ex:longitude "100.22"^^xsd:float ;
 	ex:latitude "58.90"^^xsd:float .
 	
-ins:Localitzacio5 a ex:GeographicalCoordinate ;
+ex:Localitzacio5 a ex:GeographicalCoordinate ;
 	ex:longitude "200.10"^^xsd:float ;
 	ex:latitude "42.70"^^xsd:float .
 	
-### Falta los nearbyInfrastructure y nearByStation y locatedIN ###
-ins:EstacioBici a ex:BicingStation ;
-	ex:locatedIn ins:Localitzacio ;
+
+ex:EstacioBici a ex:BicingStation ;
+	ex:locatedIn ex:Localitzacio ;
 	ex:stationID "1"^^xsd:Integer ;
 	ex:stationType "BicingBCN"^^xsd:String ; 
 	ex:stationStreetName "Carrer Prat"^^xsd:String ; 
@@ -55,10 +55,10 @@ ins:EstacioBici a ex:BicingStation ;
 	ex:stationSlotsNumber "10"^^xsd:Integer ;
 	ex:stationBikesNumber "5"^^xsd:Integer ;
 	ex:stationAltitude "1.6"^^xsd:Float ;
-	ex:nearByInfrastructure ins:EstacioBici2 . 
+	ex:nearByInfrastructure ex:EstacioBici2 . 
 	
-ins:EstacioBici2 a ex:BicingStation ;
-	ex:locatedIn ins:Localitzacio2 ;
+ex:EstacioBici2 a ex:BicingStation ;
+	ex:locatedIn ex:Localitzacio2 ;
 	ex:stationID "2"^^xsd:Integer ;
 	ex:stationType "BicingBCN"^^xsd:String ; 
 	ex:stationStreetName "Carrer Barcelona"^^xsd:String ; 
@@ -67,11 +67,11 @@ ins:EstacioBici2 a ex:BicingStation ;
 	ex:stationSlotsNumber "11"^^xsd:Integer ;
 	ex:stationBikesNumber "3"^^xsd:Integer ;
 	ex:stationAltitude "10"^^xsd:Float ;
-	ex:nearByInfrastructure ins:EstacioBici ;
-	ex:nearByInfrastructure ins:EstacioBici3 . 
+	ex:nearByInfrastructure ex:EstacioBici ;
+	ex:nearByInfrastructure ex:EstacioBici3 . 
 	
-ins:EstacioBici3 a ex:BicingStation ;
-	ex:locatedIn ins:Localitzacio3 ;
+ex:EstacioBici3 a ex:BicingStation ;
+	ex:locatedIn ex:Localitzacio3 ;
 	ex:stationID "3"^^xsd:Integer ;
 	ex:stationType "BicingMataro"^^xsd:String ; 
 	ex:stationStreetName "Carrer Arribau"^^xsd:String ; 
@@ -80,38 +80,43 @@ ins:EstacioBici3 a ex:BicingStation ;
 	ex:stationSlotsNumber "5"^^xsd:Integer ;
 	ex:stationBikesNumber "2"^^xsd:Integer ;
 	ex:stationAltitude "450"^^xsd:Float ;
-	ex:nearByInfrastructure ins:EstacioBici2 ;
-	ex:nearByStation ins:EstacioBici ;
-	ex:nearByInfrastructure ins:MetroAndBus1 .
+	ex:nearByInfrastructure ex:EstacioBici2 ;
+	ex:nearByStation ex:EstacioBici ;
+	ex:nearByInfrastructure ex:MetroAndBus1 .
 	
-ins:MetroAndBus1 a ex:MetroAndBusStop;
-	ex:locatedIn ins:Localitzacio4 ;
+ex:MetroAndBus1 a ex:MetroAndBusStop;
+	ex:locatedIn ex:Localitzacio4 ;
 	ex:stopName  "Guinardo"^^xsd:String ;
 	ex:stopAddress "Calle falsa"^^xsd:String ;
 	ex:stopPhone  "493287"^^xsd:Integer ;
-	ex:nearByInfrastructure ins:MetroAndBus2 .
+	ex:nearByInfrastructure ex:MetroAndBus2 .
 	
-ins:MetroAndBus2 a ex:MetroAndBusStop;
-	ex:locatedIn ins:Localitzacio4 ;
+ex:MetroAndBus2 a ex:MetroAndBusStop;
+	ex:locatedIn ex:Localitzacio4 ;
 	ex:stopName  "La sagrera"^^xsd:String ;
 	ex:stopAddress "Calle alamo"^^xsd:String ;
 	ex:stopPhone  "11111"^^xsd:Integer ;
-	ex:nearByInfrastructure ins:EstacioBici2 ;
-	ex:nearByInfrastructure ins:EstacioBici3 .
+	ex:nearByInfrastructure ex:EstacioBici2 ;
+	ex:nearByInfrastructure ex:EstacioBici3 .
 	
-ins:District1 a ex:District;
+ex:District1 a ex:District;
 	ex:districtName "XXXXXX"^^xsd:String ;
 	ex:districtNumber  "22"^^xsd:Integer .
 	
-ins:District2 a ex:District;
+ex:District2 a ex:District;
 	ex:districtName "YYYYY"^^xsd:String ;
 	ex:districtNumber  "33"^^xsd:Integer .
 	
-ins:Suburb1 a ex:Suburb;
-	ex:providesStop  ins:MetroAndBus1;
-	ex:providesStop  ins:MetroAndBus2;
-	ex:belongsTo  ins:District1;			
+ex:Suburb1 a ex:Suburb;
+	ex:providesStop  ex:MetroAndBus1;
+	ex:providesStop  ex:MetroAndBus2;
+	ex:belongsTo  ex:District1;			
 	ex:suburbName  "Suburb1"^^xsd:String .
+
+ex:Suburb2 a ex:Suburb;
+	ex:providesStop  ex:MetroAndBus1;
+	ex:belongsTo  ex:District2;			
+	ex:suburbName  "Suburb2"^^xsd:String .
 
 	
 	
