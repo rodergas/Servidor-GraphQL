@@ -44,4 +44,8 @@ public class MetroAndBusStopRepository {
     }
     
     
+    public MetroAndBusStop getMetroAndBusStop(String id) {
+        return new MetroAndBusStop(id);
+    }
+    
 }

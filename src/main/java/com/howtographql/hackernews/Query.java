@@ -45,6 +45,25 @@ public class Query implements GraphQLQueryResolver {
     	return districtRepository.getAllDistricts();
     }
     
+    public District getDistrict(String id){
+    	return districtRepository.getDistrict(id);
+    }
+    
+    public Suburb getSuburb(String id){
+    	return suburbRepository.getSuburb(id);
+    }
+    
+    public MetroAndBusStop getMetroAndBusStop(String id){
+    	return metroAndBusStopRepository.getMetroAndBusStop(id);
+    }
+    
+    public GeographicalCoordinate getGeographicalCoordinate(String id){
+    	return geographicalCoordinateRepository.getGeographicalCoordinate(id);
+    }
+    
+    public BicingStation getBicingStation(String id){
+    	return bicingStationRepository.getBicingStation(id);
+    }
 
 	
 }

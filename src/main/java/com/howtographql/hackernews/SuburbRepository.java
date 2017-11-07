@@ -44,6 +44,10 @@ public class SuburbRepository {
         return Suburbs;
     }
     
+    public Suburb getSuburb(String id) {
+        return new Suburb(id);
+    }
+    
     
 
 }

@@ -52,5 +52,9 @@ public class BicingStationRepository {
         return BicingStations;
     }
     
+    public BicingStation getBicingStation(String id){
+    	return new BicingStation(id);
+    }
+    
 
 }

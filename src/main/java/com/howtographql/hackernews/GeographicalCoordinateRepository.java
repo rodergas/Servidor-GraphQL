@@ -44,6 +44,11 @@ public class GeographicalCoordinateRepository {
         return GeographicalCoordinates;
     }
     
+    public GeographicalCoordinate getGeographicalCoordinate(String id) {
+
+        return new GeographicalCoordinate(id);
+    }
+    
     public void saveGeographicalCoordinate(GeographicalCoordinate geographicalCoordinate) {
     	GeographicalCoordinates.add(geographicalCoordinate);
     }

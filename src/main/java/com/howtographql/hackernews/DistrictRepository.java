@@ -42,6 +42,10 @@ public class DistrictRepository {
         return Districts;
     }
     
+    public District getDistrict(String id){
+    	return new District(id);
+    }
+    
     
     public String modifyScalarValue(String value){
     	int index = value.toString().indexOf("^");

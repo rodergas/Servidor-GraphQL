@@ -8,25 +8,22 @@ type GeographicalCoordinate {
 	latitude: Float! 
 	longitude: Float! 
 }  
- 
 type District { 
 	districtNumber: Int! 
 	districtName: String! 
 }  
- 
 type MetroAndBusStop implements Infrastructure{ 
+	InfrastructureType: String! 
 	locatedIn: GeographicalCoordinate! 
 	nearByInfrastructure: [Infrastructure] 
-	InfrastructureType: String! 
 	stopAddress: String 
 	stopPhone: Int 
 	stopName: String 
 }  
- 
 type BicingStation implements Infrastructure{ 
+	InfrastructureType: String! 
 	locatedIn: GeographicalCoordinate! 
 	nearByInfrastructure: [Infrastructure] 
-	InfrastructureType: String! 
 	stationStreetName: String! 
 	stationType: String! 
 	stationBikesNumber: Int! 
@@ -37,26 +34,24 @@ type BicingStation implements Infrastructure{
 	nearByStation: [BicingStation] 
 	stationStatus: String! 
 }  
- 
 type Suburb { 
 	suburbName: String! 
 	belongsTo: District! 
 	providesStop: [MetroAndBusStop] 
 }  
+type Query { 
+	allGeographicalCoordinates: [GeographicalCoordinate] 
+	getGeographicalCoordinate(id: String!): GeographicalCoordinate 
+	allDistricts: [District] 
+	getDistrict(id: String!): District 
+	allMetroAndBusStops: [MetroAndBusStop] 
+	getMetroAndBusStop(id: String!): MetroAndBusStop 
+	allBicingStations: [BicingStation] 
+	getBicingStation(id: String!): BicingStation 
+	allSuburbs: [Suburb] 
+	getSuburb(id: String!): Suburb 
+} 
+schema { 
+	query: Query 
+} 
  
- type Query {
-  allGeographicalCoordinates: [GeographicalCoordinate]
-  allBicingStations: [BicingStation]
-  allMetroAndBusStops: [MetroAndBusStop]
-  allDistricts: [District]
-  allSuburbs: [Suburb]
-  getDistrict(id: String): District
-  getSuburb(id: String): Suburb
-  getMetroAndBusStop(id: String): MetroAndBusStop
-  getGeographicalCoordinate(id: String): GeographicalCoordinate
-  getBicingStation(id: String): BicingStation
-}
-
-schema {
-  query: Query
-}
