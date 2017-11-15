@@ -8,6 +8,9 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 
 import javax.lang.model.element.Modifier;
 
@@ -137,10 +140,58 @@ public class Main {
 		return method;
 	}
 	
+	public static MethodSpec connectVirtuosoWithId(){
+		ClassName string = ClassName.get("java.lang", "String");
+		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		
+		ClassName Query = ClassName.get("org.apache.jena.query", "Query");
+		ClassName QueryFactory = ClassName.get("org.apache.jena.query", "QueryFactory");
+		ClassName QuerySolution = ClassName.get("org.apache.jena.query", "QuerySolution");
+		ClassName ResultSet = ClassName.get("org.apache.jena.query", "ResultSet");
+
+		ClassName VirtGraph = ClassName.get("virtuoso.jena.driver", "VirtGraph");
+		ClassName VirtuosoQueryExecution = ClassName.get("virtuoso.jena.driver", "VirtuosoQueryExecution");
+		ClassName VirtuosoQueryExecutionFactory = ClassName.get("virtuoso.jena.driver", "VirtuosoQueryExecutionFactory");
+		
+		TypeName listOfStrings = ParameterizedTypeName.get(arrayList, string);
+		
+		
+		MethodSpec method = MethodSpec.methodBuilder("connectVirtuoso")
+				.addParameter(String.class, "value")
+				.addParameter(String.class, "id")
+				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
+				.addCode("$T sparql = $T.create(\"Select ?valor FROM <http://localhost:8890/Example4> WHERE {\"\n", Query, QueryFactory)
+				.addCode("+ \"OPTIONAL { <\"+ id +\"> <\"+  value + \"> ?valor}.\"\n")
+				.addCode("+ \"}\");\n \n")
+				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
+				.addCode("$T res = vqe.execSelect();\n", ResultSet)
+				.addCode("ArrayList<String> valor = new ArrayList<>();\n\n")
+				.addCode("while(res.hasNext()){\n")
+				.addCode("\t $T qs = res.next();\n", QuerySolution)
+				.addCode("\t valor.add(qs.get(\"?valor\").toString());\n")
+				.addCode("}\n\n")
+				.addCode("graph.close();\n")
+				.addCode("return valor;\n")
+			    .returns(listOfStrings)
+			    .addModifiers(Modifier.PUBLIC)
+			    .build();
+		return method;
+	}
+	
 	public static MethodSpec getIdTurtle(){
 		MethodSpec method = MethodSpec.methodBuilder("getIdTurtle")
 				.addCode("return idTurtle;\n")
 				.addModifiers(Modifier.PRIVATE)
+				.returns(String.class)
+				.build();
+		return method;
+	}
+	
+	public static MethodSpec getXXXType(String XXX, String nameType){
+		String output = XXX.substring(0, 1).toUpperCase() + XXX.substring(1);
+		MethodSpec method = MethodSpec.methodBuilder("get" + output + "Type")
+				.addCode("return $L;\n", nameType)
+				.addModifiers(Modifier.PUBLIC)
 				.returns(String.class)
 				.build();
 		return method;
@@ -174,12 +225,13 @@ public class Main {
 		}
 		return finalScalar;
 	}
-	public static void buildType(String nameType, String nameInterface,  ArrayList<String> interfaces,  ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
+	public static void buildType(String nameType, String nameInterface, HashMap<String, ArrayList<String>> interfaces, ArrayList<String> interfacesToImplement,  ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
 		//Type District
 		if(nameType != "" && !nameType.equals("Query")){
 			int i = 0;
 			ArrayList<MethodSpec> methods = new ArrayList<>();
 			
+			// Llegenda
 			// AAA : [BBB!]
 			// AAA -> NameField
 			// BBB -> ScalarField/finalScalar
@@ -187,12 +239,12 @@ public class Main {
 				
 				String finalScalar = scalarFields.get(i);
 				boolean lista = finalScalar.contains("[") && finalScalar.contains("]");
-				//[String!] -> String
+				//[String!] -> String (finalScalar)
 				finalScalar = getFinalScalar(finalScalar);
 				
 				boolean isSimple = isSimpleType(finalScalar);
 				if(isSimple){
-					// AAA : String, ID, Boolean, Int, Float
+					// AAA : String, ID, Boolean, Int, Float (simpleType)
 					//Int -> Integer, ID -> Integer
 					if(finalScalar.equals("Int") || finalScalar.equals("ID")) finalScalar = "Integer";
 					ClassName className = getClassName(finalScalar);
@@ -206,7 +258,13 @@ public class Main {
 					// AAA : Int
 				    if(!lista){
 				    	methodBuild.returns(className);
-				    	if(finalScalar.equals("String")) methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
+				    	if(finalScalar.equals("String")) {
+				    		boolean isType = false;
+				    		for(String inter: interfacesToImplement){
+				    			if((inter + "Type").toLowerCase().equals(nameField.toLowerCase())) {methodBuild.addStatement("return $S", nameType); isType = true; break;}
+				    		}
+				    		if(!isType)methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
+				    	}
 				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, "Int", nameField);
 				    	else methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, finalScalar, nameField);
 				    }else{
@@ -236,18 +294,53 @@ public class Main {
 					String output = nameField.substring(0, 1).toUpperCase() + nameField.substring(1);
 					MethodSpec.Builder methodBuild = MethodSpec.methodBuilder("get" + output)
 						    .addModifiers(Modifier.PUBLIC);
-					if(!lista){
-						// AAA : District
-						methodBuild.returns(className);
-						methodBuild.addStatement("return new $L(connectVirtuoso(\"http://www.example.com/$L\").get(0))", finalScalar, nameField);
-					}else{
-						// AAA : [District]
-						methodBuild.returns(listOfClassName);
-						methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
-						methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
-						methodBuild.addStatement("for(String id:$L) $L.add(new $L(id))", nameField, nameField + "s", finalScalar);
-						methodBuild.addStatement("return $L", nameField + "s");
+
+					
+					// public class AAA implements INTERFACE
+					//PossibleOptions -> Interface: Infrastructure -> (possibleoptions) MEtroANdBus and bicingStation
+					ArrayList<String> possibleOptions = new ArrayList<>();
+					if(interfaces.get(finalScalar) != null){
+						possibleOptions = interfaces.get(finalScalar);
+						if(!lista){
+							// AAA : Infrastructure
+							methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
+							methodBuild.addCode("for(String id: $L){\n", nameField);
+							for(String possibleOption : possibleOptions){
+								methodBuild.addCode("\t if(connectVirtuoso(\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\", id).get(0).equals(\"http://www.example.com/$L\")) $L $L = new $L(id); \n",possibleOption ,finalScalar , "result",possibleOption );
+							}
+							methodBuild.addCode("}\n");
+							methodBuild.addStatement("return $L", "result");
+							methodBuild.returns(className);
+						}else{
+								// AA : [Infrastructure]
+							methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
+							methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
+							methodBuild.addCode("for(String id: $L){\n", nameField);
+							for(String possibleOption : possibleOptions){
+								methodBuild.addCode("\t if(connectVirtuoso(\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\", id).get(0).equals(\"http://www.example.com/$L\")) $L.add(new $L(id)); \n",possibleOption , nameField+ "s", possibleOption );
+							}
+							methodBuild.addCode("}\n");
+							methodBuild.addStatement("return $L", nameField+ "s");
+							methodBuild.returns(listOfClassName);
+						}
 					}
+					
+					//No es interfaz
+					if(possibleOptions.isEmpty()){
+						if(!lista){
+							// AAA : District
+							methodBuild.returns(className);
+							methodBuild.addStatement("return new $L(connectVirtuoso(\"http://www.example.com/$L\").get(0))", finalScalar, nameField);
+						}else{
+							// AAA : [District]
+							methodBuild.returns(listOfClassName);
+							methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
+							methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
+							methodBuild.addStatement("for(String id:$L) $L.add(new $L(id))", nameField, nameField + "s", finalScalar);
+							methodBuild.addStatement("return $L", nameField + "s");
+						}
+					}
+					
 					MethodSpec method = methodBuild.build();
 					methods.add(method);
 				}
@@ -257,8 +350,10 @@ public class Main {
 			
 			methods.add(createModifyScalarValue());
 			methods.add(connectVirtuoso());
+			methods.add(connectVirtuosoWithId());
 			methods.add(getIdTurtle());
 			methods.add(constructor());
+			
 			
 			TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "example")
 					.addModifiers(Modifier.PUBLIC)
@@ -266,6 +361,11 @@ public class Main {
 			
 			for(MethodSpec m : methods){
 				builder.addMethod(m);
+			}
+			
+			for(String inter : interfacesToImplement){
+				ClassName name = ClassName.get("com.howtographql.hackernews", inter);
+				builder.addSuperinterface(name);
 			}
 			TypeSpec typeSpec = builder.build();
 			
@@ -277,7 +377,48 @@ public class Main {
 		}
 		//Interface
 		else if(nameInterface != ""){
+			int i = 0;
+			ArrayList<MethodSpec> methods = new ArrayList<>();
+			for(String nameField : nameFields){
+				
+				String finalScalar = scalarFields.get(i);
+				boolean lista = finalScalar.contains("[") && finalScalar.contains("]");
+				//[String!] -> String (finalScalar)
+				finalScalar = getFinalScalar(finalScalar);
+				
+				ClassName className = ClassName.get("com.howtographql.hackernews", finalScalar);
+				ClassName arrayList = ClassName.get("java.util", "ArrayList");
+				TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
+				
+				String output = nameField.substring(0, 1).toUpperCase() + nameField.substring(1);
+				MethodSpec.Builder methodBuild = MethodSpec.methodBuilder("get" + output);
+				if(!lista){
+					methodBuild.returns(className);
+				} else{
+					methodBuild.returns( listOfClassName );
+				}
+				methodBuild.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
+				MethodSpec method = methodBuild.build();
+				methods.add(method);
+				
+				i++;
+			}
+			TypeSpec.Builder builder = TypeSpec.interfaceBuilder(nameInterface + "example")
+				    .addModifiers(Modifier.PUBLIC);
 			
+			for(MethodSpec m : methods){
+				builder.addMethod(m);
+			}
+			
+			TypeSpec typeSpec = builder.build();
+			
+			JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+				    .build();
+
+			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	 
+
+				    
+
 		}
 	}
 
@@ -290,30 +431,62 @@ public class Main {
 	 
 		String line = null;
 		
-		ArrayList<String> interfaces = new ArrayList<>();
+		ArrayList<String> interfacesToImplement = new ArrayList<>();
 		ArrayList<String> nameFields = new ArrayList<>();
 		ArrayList<String> scalarFields = new ArrayList<>();
+		HashMap<String, ArrayList<String>> interfaces = new HashMap<String, ArrayList<String>>();
 		String nameType = "";
 		String nameInterface = "";
 		
+		// Fill Object Interfaces
+		// Infrastructure (key) -> BicingStation, MetroAndBusStop (value)
 		boolean empieza = false;
+	
 		while ((line = br.readLine()) != null) {
+				if(line.toLowerCase().contains("type")  && line.contains("{")){
+					nameType = getName(line, "type");
+					if(line.toLowerCase().contains("implements")){
+						interfacesToImplement = getInterfaces(line);
+						for(String inter : interfacesToImplement){
+							interfaces.putIfAbsent(inter, new ArrayList<>());
+							interfaces.get(inter).add(nameType);
+						}
+					}
+			}
+		}
+		/*
+		for (Entry<String, ArrayList<String>> ee : interfaces.entrySet()) {
+		    String key = ee.getKey();
+		    ArrayList<String> values = (ArrayList) ee.getValue();
+		    System.out.println("key " + key);
+		    for(String v: values) System.out.print("valor " + v);
+		    System.out.println();
+		}
+		*/
+		br.close();
+		
+		//---------------
+		FileInputStream fis2 = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo2.graphqls");
+		BufferedReader file = new BufferedReader(new InputStreamReader(fis2));
+		empieza = false;
+		while ((line = file.readLine()) != null) {
 			line = line.replace("\t", " ");
 			
 			//Can assume that one type/interface will start because the { can only be there
 			if(line.contains("{")) empieza = true;
-			
 			if(empieza){
-				
-				
 				//Is a type
 				if(line.toLowerCase().contains("type")  && line.contains("{")){
 					nameType = getName(line, "type");
 					System.out.println("name " + nameType);
 					//Implements some interface
 					if(line.toLowerCase().contains("implements")){
-						interfaces = getInterfaces(line);
-						for(String n : interfaces) System.out.print("implements " + n);
+						interfacesToImplement = getInterfaces(line);
+						
+					    
+						for(String inter : interfacesToImplement){
+							System.out.print("implements " + inter);
+						}
 						System.out.println();
 						
 					}
@@ -321,7 +494,6 @@ public class Main {
 				//Is a interface
 				else if(line.toLowerCase().contains("interface")  && line.contains("{")){
 					nameInterface = getName(line, "interface");
-					System.out.println("interface " + nameInterface);
 				}
 				//Is a field
 				else if(line.toLowerCase().contains(":")){
@@ -331,18 +503,19 @@ public class Main {
 				//End of type/interface
 				else if(line.contains("}")){
 					empieza = false;
-					buildType(nameType, nameInterface, interfaces, nameFields, scalarFields);
-					interfaces = new ArrayList<>();
+					buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
+					interfacesToImplement = new ArrayList<>();
 					nameFields = new ArrayList<>();
 					scalarFields = new ArrayList<>();
 					nameType = "";
 					nameInterface = "";
 				}
 			}
+
 			
 		}
-	 
-		br.close();
+
+		file.close();
 		// TODO Auto-generated method stub
 		MethodSpec main = MethodSpec.methodBuilder("main")
 			    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)

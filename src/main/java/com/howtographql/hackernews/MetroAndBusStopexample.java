@@ -1,6 +1,5 @@
 package com.howtographql.hackernews;
 
-import java.lang.Boolean;
 import java.lang.Integer;
 import java.lang.String;
 import java.util.ArrayList;
@@ -12,7 +11,7 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class MetroAndBusStopexample {
+public class MetroAndBusStopexample implements Infrastructure {
   private String idTurtle;
 
   public MetroAndBusStopexample(String idTurtle) {
@@ -20,7 +19,7 @@ public class MetroAndBusStopexample {
   }
 
   public String getInfrastructureType() {
-    return modifyScalarValue(connectVirtuoso("http://www.example.com/InfrastructureType").get(0));
+    return "MetroAndBusStop";
   }
 
   public GeographicalCoordinate getLocatedIn() {
@@ -30,19 +29,19 @@ public class MetroAndBusStopexample {
   public ArrayList<Infrastructure> getNearByInfrastructure() {
     ArrayList<String> nearByInfrastructure = connectVirtuoso("http://www.example.com/nearByInfrastructure");
     ArrayList<Infrastructure> nearByInfrastructures = new ArrayList<>();
-    for(String id:nearByInfrastructure) nearByInfrastructures.add(new Infrastructure(id));
+    for(String id: nearByInfrastructure){
+    	 if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/MetroAndBusStop")) nearByInfrastructures.add(new MetroAndBusStop(id)); 
+    	 if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/BicingStation")) nearByInfrastructures.add(new BicingStation(id)); 
+    }
     return nearByInfrastructures;
   }
 
-  public Boolean getStopAddress() {
-    return Boolean.parseBoolean(modifyScalarValue(connectVirtuoso("http://www.example.com/stopAddress").get(0)));
+  public String getStopAddress() {
+    return modifyScalarValue(connectVirtuoso("http://www.example.com/stopAddress").get(0));
   }
 
-  public ArrayList<Integer> getStopPhone() {
-    ArrayList<String> stopPhone = connectVirtuoso("http://www.example.com/stopPhone");
-    ArrayList<Integer> stopPhones = new ArrayList<>();
-    for(String id:stopPhone) stopPhones.add(Integer.parseInt(id));
-    return stopPhones;
+  public Integer getStopPhone() {
+    return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/stopPhone").get(0)));
   }
 
   public String getStopName() {
@@ -59,6 +58,25 @@ public class MetroAndBusStopexample {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
     + "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
+    + "}");
+     
+    VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+    ResultSet res = vqe.execSelect();
+    ArrayList<String> valor = new ArrayList<>();
+
+    while(res.hasNext()){
+    	 QuerySolution qs = res.next();
+    	 valor.add(qs.get("?valor").toString());
+    }
+
+    graph.close();
+    return valor;
+  }
+
+  public ArrayList<String> connectVirtuoso(String value, String id) {
+    VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
+    + "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);

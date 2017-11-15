@@ -12,7 +12,7 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class BicingStationexample {
+public class BicingStationexample implements Infrastructure {
   private String idTurtle;
 
   public BicingStationexample(String idTurtle) {
@@ -20,7 +20,7 @@ public class BicingStationexample {
   }
 
   public String getInfrastructureType() {
-    return modifyScalarValue(connectVirtuoso("http://www.example.com/InfrastructureType").get(0));
+    return "BicingStation";
   }
 
   public GeographicalCoordinate getLocatedIn() {
@@ -30,7 +30,10 @@ public class BicingStationexample {
   public ArrayList<Infrastructure> getNearByInfrastructure() {
     ArrayList<String> nearByInfrastructure = connectVirtuoso("http://www.example.com/nearByInfrastructure");
     ArrayList<Infrastructure> nearByInfrastructures = new ArrayList<>();
-    for(String id:nearByInfrastructure) nearByInfrastructures.add(new Infrastructure(id));
+    for(String id: nearByInfrastructure){
+    	 if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/MetroAndBusStop")) nearByInfrastructures.add(new MetroAndBusStop(id)); 
+    	 if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/BicingStation")) nearByInfrastructures.add(new BicingStation(id)); 
+    }
     return nearByInfrastructures;
   }
 
@@ -83,6 +86,25 @@ public class BicingStationexample {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
     Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
     + "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
+    + "}");
+     
+    VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+    ResultSet res = vqe.execSelect();
+    ArrayList<String> valor = new ArrayList<>();
+
+    while(res.hasNext()){
+    	 QuerySolution qs = res.next();
+    	 valor.add(qs.get("?valor").toString());
+    }
+
+    graph.close();
+    return valor;
+  }
+
+  public ArrayList<String> connectVirtuoso(String value, String id) {
+    VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
+    + "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
