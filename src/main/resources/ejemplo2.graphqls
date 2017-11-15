@@ -12,7 +12,7 @@ type District {
 	districtNumber: Int!
 	districtName: String!
 }
-type MetroAndBusStop implements Infrastructure , Infra2{
+type MetroAndBusStop implements Infrastructure{
 	InfrastructureType: String!
 	locatedIn: GeographicalCoordinate!
 	nearByInfrastructure: [Infrastructure]

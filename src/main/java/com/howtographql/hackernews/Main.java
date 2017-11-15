@@ -44,7 +44,6 @@ public class Main {
 			if(i == line.lastIndexOf(':')) break;
 			else if(line.charAt(i) != ' ') name += line.charAt(i);
 		}
-		System.out.println("getField " + name);
 		return name;
 	}
 	
@@ -166,44 +165,79 @@ public class Main {
 		return ClassName;
 	}
 	
+	public static String getFinalScalar(String finalScalar){
+		if(finalScalar.contains("!")) finalScalar = finalScalar.replace("!", ""); 
+		if(finalScalar.contains("[") && finalScalar.contains("]")){
+			finalScalar = finalScalar.replace("]", "");
+			finalScalar = finalScalar.replace("[", "");
+
+		}
+		return finalScalar;
+	}
 	public static void buildType(String nameType, String nameInterface,  ArrayList<String> interfaces,  ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
 		//Type
-		if(nameType != ""){
+		if(nameType != "" && !nameType.equals("Query")){
 			int i = 0;
 			ArrayList<MethodSpec> methods = new ArrayList<>();
 			for(String nameField : nameFields){
 				
-				//[String!] -> String
 				String finalScalar = scalarFields.get(i);
-				boolean lista = false;
-				if(finalScalar.contains("!")) finalScalar = finalScalar.replace("!", ""); 
-				if(finalScalar.contains("[") && finalScalar.contains("]")){
-					finalScalar = finalScalar.replace("]", "");
-					finalScalar = finalScalar.replace("[", "");
-
-					lista = true;
-				}
+				boolean lista = finalScalar.contains("[") && finalScalar.contains("]");
+				//[String!] -> String
+				finalScalar = getFinalScalar(finalScalar);
 				
 				boolean isSimple = isSimpleType(finalScalar);
 				if(isSimple){
-					//String, ID, Boolean, Int, Float
+					// AAA : String, ID, Boolean, Int, Float
 					//Int -> Integer, ID -> Integer
 					if(finalScalar.equals("Int") || finalScalar.equals("ID")) finalScalar = "Integer";
 					ClassName className = getClassName(finalScalar);
+					ClassName arrayList = ClassName.get("java.util", "ArrayList");
+					TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
 					
-					System.out.println("final " + finalScalar + " " + finalScalar.getClass());
 					String output = nameField.substring(0, 1).toUpperCase() + nameField.substring(1);
 					MethodSpec.Builder methodBuild = MethodSpec.methodBuilder("get" + output)
-						    .addModifiers(Modifier.PUBLIC)
-						    .returns(className);
-					if(finalScalar.equals("String")) methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
-					else if(finalScalar.equals("Integer")) methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, "Int", nameField);
-					else methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, finalScalar, nameField);
+						    .addModifiers(Modifier.PUBLIC);
+				    if(!lista){
+				    	methodBuild.returns(className);
+				    	if(finalScalar.equals("String")) methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
+				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, "Int", nameField);
+				    	else methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, finalScalar, nameField);
+				    }else{
+				    	methodBuild.returns(listOfClassName);
+						methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
+						methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
+						if(finalScalar.equals("String")) methodBuild.addStatement("for(String id:$L) $L.add(id)", nameField, nameField + "s");
+				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("for(String id:$L) $L.add($L.parse$L(id))", nameField, nameField + "s", finalScalar, "Int");
+				    	else methodBuild.addStatement("for(String id:$L) $L.add($L.parse$L(id))", nameField, nameField + "s", finalScalar, finalScalar);
+						methodBuild.addStatement("return $L", nameField + "s");
+				    }
 					MethodSpec method = methodBuild.build();
 					
 					methods.add(method);
 				}else{
 					//Other types (GeographicalCoordinate...)
+					//AAA : GeographicalCoordinate, District
+					
+					ClassName className = ClassName.get("com.howtographql.hackernews", finalScalar);
+					ClassName arrayList = ClassName.get("java.util", "ArrayList");
+					TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
+					
+					String output = nameField.substring(0, 1).toUpperCase() + nameField.substring(1);
+					MethodSpec.Builder methodBuild = MethodSpec.methodBuilder("get" + output)
+						    .addModifiers(Modifier.PUBLIC);
+					if(!lista){
+						methodBuild.returns(className);
+						methodBuild.addStatement("return new $L(connectVirtuoso(\"http://www.example.com/$L\").get(0))", finalScalar, nameField);
+					}else{
+						methodBuild.returns(listOfClassName);
+						methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
+						methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
+						methodBuild.addStatement("for(String id:$L) $L.add(new $L(id))", nameField, nameField + "s", finalScalar);
+						methodBuild.addStatement("return $L", nameField + "s");
+					}
+					MethodSpec method = methodBuild.build();
+					methods.add(method);
 				}
 					   			
 				++i;
