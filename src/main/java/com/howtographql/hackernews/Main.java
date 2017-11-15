@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -99,6 +100,32 @@ public class Main {
 				.addCode("return resultat;\n")
 				.addModifiers(Modifier.PRIVATE)
 				.returns(String.class)
+				.build();
+		return method;
+	}
+	
+	public static MethodSpec queryList(String nameType){
+		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName arrayList = ClassName.get("java.util", "List");
+		
+		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
+		
+		MethodSpec method = MethodSpec.methodBuilder("all" + nameType + "s")
+				.addCode("return $LRepositoryInstance.getAll$Ls();\n", nameType, nameType)
+				.addModifiers(Modifier.PUBLIC)
+				.returns(listOfClass)
+				.build();
+		return method;
+	}
+	
+	public static MethodSpec queryOne(String nameType){
+		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+
+		MethodSpec method = MethodSpec.methodBuilder("get" + nameType )
+				.addCode("return $LRepositoryInstance.get$L(id);\n", nameType, nameType)
+				.addModifiers(Modifier.PUBLIC)
+				.returns(clase)
+				.addParameter(String.class, "id")
 				.build();
 		return method;
 	}
@@ -480,8 +507,6 @@ public class Main {
 				    .build();
 
 			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	 
-		} else if(nameType.equals("Query")){
-
 		}
 	}
 	
@@ -505,6 +530,56 @@ public class Main {
 
 		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
 	}
+	
+	public static void buildQuery(String nameType, ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
+		ClassName claseImplements = ClassName.get("com.coxautodev.graphql.tools", "GraphQLQueryResolver");
+		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		
+		TypeName listOfClass = ParameterizedTypeName.get(arrayList, claseImplements);
+		
+		TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "example")
+			    .addModifiers(Modifier.PUBLIC)
+			    .addSuperinterface(claseImplements);
+		
+		HashSet<String> repostiories = new HashSet<>();
+		
+		for(String sF : scalarFields){
+			if(sF.contains("!")) sF = sF.replace("!", "");
+			if(sF.contains("[") && sF.contains("]")){
+				sF = sF.replace("[", "");
+				sF = sF.replace("]", "");
+				builder.addMethod(queryList(sF));
+				repostiories.add(sF);
+			}else{
+				builder.addMethod(queryOne(sF));
+				repostiories.add(sF);
+			}
+		}
+		
+		MethodSpec.Builder constructorQueryBuilder = MethodSpec.constructorBuilder()
+			    .addModifiers(Modifier.PUBLIC);
+			    
+		for(String repo : repostiories){
+			repo = repo + "Repository";
+			ClassName clase = ClassName.get("com.howtographql.hackernews", repo);
+			repo = repo + "Instance";
+			builder.addField(clase, repo , Modifier.PRIVATE, Modifier.FINAL); 
+			constructorQueryBuilder.addParameter(clase, repo);
+			constructorQueryBuilder.addStatement("this.$N = $N", repo , repo );
+			
+		}
+		
+		builder.addMethod(constructorQueryBuilder.build());
+		
+		
+		TypeSpec typeSpec = builder.build();
+		
+		JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+			    .build();
+
+		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
+	}
+
 
 	public static void main(String[] args) throws IOException {
 		
@@ -519,16 +594,19 @@ public class Main {
 		ArrayList<String> nameFields = new ArrayList<>();
 		ArrayList<String> scalarFields = new ArrayList<>();
 		HashMap<String, ArrayList<String>> interfaces = new HashMap<String, ArrayList<String>>();
+		ArrayList<String> types = new ArrayList<>();
 		String nameType = "";
 		String nameInterface = "";
 		
-		// Fill Object Interfaces
+		// Fill Object HashMap<String, ArrayList<String>> Interfaces
 		// Infrastructure (key) -> BicingStation, MetroAndBusStop (value)
 		boolean empieza = false;
 	
 		while ((line = br.readLine()) != null) {
 				if(line.toLowerCase().contains("type")  && line.contains("{")){
 					nameType = getName(line, "type");
+					String output = nameType.substring(0, 1).toUpperCase() + nameType.substring(1);
+					types.add(output);
 					if(line.toLowerCase().contains("implements")){
 						interfacesToImplement = getInterfaces(line);
 						for(String inter : interfacesToImplement){
@@ -571,7 +649,8 @@ public class Main {
 				//End of type/interface
 				else if(line.contains("}")){
 					empieza = false;
-					buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
+					if(nameType.equals("Query")) buildQuery(nameType, nameFields, scalarFields);
+					else buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
 					if(nameInterface.isEmpty() && !nameType.isEmpty() && !nameType.equals("Query"))buildRepository(nameType);
 					interfacesToImplement = new ArrayList<>();
 					nameFields = new ArrayList<>();
