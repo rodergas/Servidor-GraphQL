@@ -206,6 +206,69 @@ public class Main {
 		return method;
 	}
 	
+	public static MethodSpec constructorRepository(String nameType){
+		
+		ClassName Query = ClassName.get("org.apache.jena.query", "Query");
+		ClassName QueryFactory = ClassName.get("org.apache.jena.query", "QueryFactory");
+		ClassName QuerySolution = ClassName.get("org.apache.jena.query", "QuerySolution");
+		ClassName ResultSet = ClassName.get("org.apache.jena.query", "ResultSet");
+
+		ClassName VirtGraph = ClassName.get("virtuoso.jena.driver", "VirtGraph");
+		ClassName VirtuosoQueryExecution = ClassName.get("virtuoso.jena.driver", "VirtuosoQueryExecution");
+		ClassName VirtuosoQueryExecutionFactory = ClassName.get("virtuoso.jena.driver", "VirtuosoQueryExecutionFactory");
+		
+		
+		
+		MethodSpec method = MethodSpec.constructorBuilder()
+				.addCode("$L = new ArrayList<>();\n", nameType + "s")
+				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
+				.addCode("$T sparql = $T.create(\"Select ?subject FROM <http://localhost:8890/Example4> WHERE {\"\n", Query, QueryFactory)
+				.addCode("+ \"OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/$L>}.\"\n", nameType)
+				.addCode("+ \"}\");\n \n")
+				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
+				.addCode("$T res = vqe.execSelect();\n", ResultSet)
+				.addCode("while(res.hasNext()){\n")
+				.addCode("\t $T qs = res.next();\n", QuerySolution)
+				.addCode("\t String subject = qs.get(\"?subject\").toString();\n")
+				.addCode("\t $L.add(new $L(subject));\n", nameType + "s", nameType)
+				.addCode("}\n\n")
+				.addCode("graph.close();\n")
+			    .addModifiers(Modifier.PUBLIC)
+			    .build();
+		return method;
+
+	}
+	
+	public static MethodSpec allInstances(String nameType){
+		
+		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		
+		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
+		
+		MethodSpec method = MethodSpec.methodBuilder("getAll" + nameType + "s")
+				.addStatement("return $L", nameType + "s")
+			    .addModifiers(Modifier.PUBLIC)
+			    .returns(listOfClass)
+			    .build();
+		return method;
+
+	}
+	
+	public static MethodSpec oneInstance(String nameType){
+		
+		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		
+		MethodSpec method = MethodSpec.methodBuilder("get" + nameType)
+				.addParameter(String.class, "id")
+				.addStatement("return new $L(id)", nameType)
+			    .addModifiers(Modifier.PUBLIC)
+			    .returns(clase)
+			    .build();
+		return method;
+
+	}
+	
 	
 	public static ClassName getClassName(String name){
 		ClassName ClassName = null;
@@ -261,8 +324,10 @@ public class Main {
 				    	if(finalScalar.equals("String")) {
 				    		boolean isType = false;
 				    		for(String inter: interfacesToImplement){
+				    			//InfrastructureType : String
 				    			if((inter + "Type").toLowerCase().equals(nameField.toLowerCase())) {methodBuild.addStatement("return $S", nameType); isType = true; break;}
 				    		}
+				    		// statioNAdress : String
 				    		if(!isType)methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
 				    	}
 				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, "Int", nameField);
@@ -284,9 +349,8 @@ public class Main {
 					methods.add(method);
 				}else{
 					//Other types (GeographicalCoordinate...)
-					//AAA : GeographicalCoordinate, District
+					//AAA : GeographicalCoordinate, District...
 					
-					//Falta diferenciar entre interfaz o no
 					ClassName className = ClassName.get("com.howtographql.hackernews", finalScalar);
 					ClassName arrayList = ClassName.get("java.util", "ArrayList");
 					TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
@@ -416,10 +480,30 @@ public class Main {
 				    .build();
 
 			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	 
-
-				    
+		} else if(nameType.equals("Query")){
 
 		}
+	}
+	
+	public static void buildRepository(String nameType) throws IOException{
+		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		
+		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
+		
+		TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "Repositoryexample")
+			    .addModifiers(Modifier.PUBLIC)
+				.addField(listOfClass, nameType + "s", Modifier.PRIVATE, Modifier.FINAL);
+		builder.addMethod(constructorRepository(nameType));
+		builder.addMethod(allInstances(nameType));
+		builder.addMethod(oneInstance(nameType));
+		
+		TypeSpec typeSpec = builder.build();
+		
+		JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+			    .build();
+
+		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -454,15 +538,7 @@ public class Main {
 					}
 			}
 		}
-		/*
-		for (Entry<String, ArrayList<String>> ee : interfaces.entrySet()) {
-		    String key = ee.getKey();
-		    ArrayList<String> values = (ArrayList) ee.getValue();
-		    System.out.println("key " + key);
-		    for(String v: values) System.out.print("valor " + v);
-		    System.out.println();
-		}
-		*/
+
 		br.close();
 		
 		//---------------
@@ -478,17 +554,9 @@ public class Main {
 				//Is a type
 				if(line.toLowerCase().contains("type")  && line.contains("{")){
 					nameType = getName(line, "type");
-					System.out.println("name " + nameType);
 					//Implements some interface
 					if(line.toLowerCase().contains("implements")){
-						interfacesToImplement = getInterfaces(line);
-						
-					    
-						for(String inter : interfacesToImplement){
-							System.out.print("implements " + inter);
-						}
-						System.out.println();
-						
+						interfacesToImplement = getInterfaces(line);						
 					}
 				}
 				//Is a interface
@@ -504,6 +572,7 @@ public class Main {
 				else if(line.contains("}")){
 					empieza = false;
 					buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
+					if(nameInterface.isEmpty() && !nameType.isEmpty() && !nameType.equals("Query"))buildRepository(nameType);
 					interfacesToImplement = new ArrayList<>();
 					nameFields = new ArrayList<>();
 					scalarFields = new ArrayList<>();
@@ -516,27 +585,6 @@ public class Main {
 		}
 
 		file.close();
-		// TODO Auto-generated method stub
-		MethodSpec main = MethodSpec.methodBuilder("main")
-			    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-			    .returns(void.class)
-			    .addParameter(String[].class, "args")
-			    .addStatement("$T.out.println($S)", System.class, "Hello, JavaPoet!")
-			    .build();
-
-			TypeSpec helloWorld = TypeSpec.classBuilder("HelloWorld")
-			    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-			    .addMethod(main)
-			    .build();
-
-			JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", helloWorld)
-			    .build();
-
-			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));
-			
-			System.out.println(new File(Paths.get(".\\src\\main\\java").toAbsolutePath().normalize().toString()).toString());
-			
-
 	}
 
 }
