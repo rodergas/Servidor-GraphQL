@@ -537,7 +537,7 @@ public class Main {
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, claseImplements);
 		
-		TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "example")
+		TypeSpec.Builder builderQuery = TypeSpec.classBuilder(nameType + "example")
 			    .addModifiers(Modifier.PUBLIC)
 			    .addSuperinterface(claseImplements);
 		
@@ -548,10 +548,10 @@ public class Main {
 			if(sF.contains("[") && sF.contains("]")){
 				sF = sF.replace("[", "");
 				sF = sF.replace("]", "");
-				builder.addMethod(queryList(sF));
+				builderQuery.addMethod(queryList(sF));
 				repostiories.add(sF);
 			}else{
-				builder.addMethod(queryOne(sF));
+				builderQuery.addMethod(queryOne(sF));
 				repostiories.add(sF);
 			}
 		}
@@ -563,21 +563,23 @@ public class Main {
 			repo = repo + "Repository";
 			ClassName clase = ClassName.get("com.howtographql.hackernews", repo);
 			repo = repo + "Instance";
-			builder.addField(clase, repo , Modifier.PRIVATE, Modifier.FINAL); 
+			builderQuery.addField(clase, repo , Modifier.PRIVATE, Modifier.FINAL); 
 			constructorQueryBuilder.addParameter(clase, repo);
 			constructorQueryBuilder.addStatement("this.$N = $N", repo , repo );
 			
 		}
 		
-		builder.addMethod(constructorQueryBuilder.build());
+		builderQuery.addMethod(constructorQueryBuilder.build());
 		
 		
-		TypeSpec typeSpec = builder.build();
+		TypeSpec typeSpec = builderQuery.build();
 		
 		JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
 			    .build();
 
 		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
+		
+		////HACER GRAPHQLENDPOINT
 	}
 
 
