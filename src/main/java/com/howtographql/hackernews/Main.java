@@ -175,10 +175,14 @@ public class Main {
 		return finalScalar;
 	}
 	public static void buildType(String nameType, String nameInterface,  ArrayList<String> interfaces,  ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
-		//Type
+		//Type District
 		if(nameType != "" && !nameType.equals("Query")){
 			int i = 0;
 			ArrayList<MethodSpec> methods = new ArrayList<>();
+			
+			// AAA : [BBB!]
+			// AAA -> NameField
+			// BBB -> ScalarField/finalScalar
 			for(String nameField : nameFields){
 				
 				String finalScalar = scalarFields.get(i);
@@ -198,18 +202,23 @@ public class Main {
 					String output = nameField.substring(0, 1).toUpperCase() + nameField.substring(1);
 					MethodSpec.Builder methodBuild = MethodSpec.methodBuilder("get" + output)
 						    .addModifiers(Modifier.PUBLIC);
+					
+					// AAA : Int
 				    if(!lista){
 				    	methodBuild.returns(className);
 				    	if(finalScalar.equals("String")) methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
 				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, "Int", nameField);
 				    	else methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, finalScalar, nameField);
 				    }else{
+				    // AAA : [Int]
 				    	methodBuild.returns(listOfClassName);
 						methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
 						methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
+						
 						if(finalScalar.equals("String")) methodBuild.addStatement("for(String id:$L) $L.add(id)", nameField, nameField + "s");
 				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("for(String id:$L) $L.add($L.parse$L(id))", nameField, nameField + "s", finalScalar, "Int");
 				    	else methodBuild.addStatement("for(String id:$L) $L.add($L.parse$L(id))", nameField, nameField + "s", finalScalar, finalScalar);
+						
 						methodBuild.addStatement("return $L", nameField + "s");
 				    }
 					MethodSpec method = methodBuild.build();
@@ -219,6 +228,7 @@ public class Main {
 					//Other types (GeographicalCoordinate...)
 					//AAA : GeographicalCoordinate, District
 					
+					//Falta diferenciar entre interfaz o no
 					ClassName className = ClassName.get("com.howtographql.hackernews", finalScalar);
 					ClassName arrayList = ClassName.get("java.util", "ArrayList");
 					TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
@@ -227,9 +237,11 @@ public class Main {
 					MethodSpec.Builder methodBuild = MethodSpec.methodBuilder("get" + output)
 						    .addModifiers(Modifier.PUBLIC);
 					if(!lista){
+						// AAA : District
 						methodBuild.returns(className);
 						methodBuild.addStatement("return new $L(connectVirtuoso(\"http://www.example.com/$L\").get(0))", finalScalar, nameField);
 					}else{
+						// AAA : [District]
 						methodBuild.returns(listOfClassName);
 						methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
 						methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
