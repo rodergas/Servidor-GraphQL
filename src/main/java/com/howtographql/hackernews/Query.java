@@ -14,7 +14,7 @@ public class Query implements GraphQLQueryResolver {
     private final SuburbRepository suburbRepository;
 
 
-    public Query(GeographicalCoordinateRepository geographicalCoordinateRepository, BicingStationRepository bicingStationRepository, MetroAndBusStopRepository metroAndBusStopRepository, DistrictRepository districtRepository, SuburbRepository suburbRepository ) {
+    public Query(MetroAndBusStopRepository metroAndBusStopRepository, BicingStationRepository bicingStationRepository, SuburbRepository suburbRepository, GeographicalCoordinateRepository geographicalCoordinateRepository, DistrictRepository districtRepository) {
         this.geographicalCoordinateRepository = geographicalCoordinateRepository;
         this.bicingStationRepository = bicingStationRepository;
         this.metroAndBusStopRepository = metroAndBusStopRepository;

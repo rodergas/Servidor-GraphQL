@@ -26,7 +26,7 @@ public class GraphQLEndpoint extends SimpleGraphQLServlet {
     	
         return SchemaParser.newParser()
                 .file("ejemplo.graphqls")
-                .resolvers(new Query(geographicalCoordinateRepository,bicingStationRepository, metroAndBusStopRepository, districtRepository, suburbRepository))
+                .resolvers(new Query(metroAndBusStopRepository,bicingStationRepository,suburbRepository,geographicalCoordinateRepository,  districtRepository ))
                 //.dictionary(MetroAndBusStop.class)
                 .build()
                 .makeExecutableSchema();

@@ -20,6 +20,8 @@ import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 
+import com.coxautodev.graphql.tools.SchemaParser;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -519,6 +521,7 @@ public class Main {
 		TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "Repositoryexample")
 			    .addModifiers(Modifier.PUBLIC)
 				.addField(listOfClass, nameType + "s", Modifier.PRIVATE, Modifier.FINAL);
+		
 		builder.addMethod(constructorRepository(nameType));
 		builder.addMethod(allInstances(nameType));
 		builder.addMethod(oneInstance(nameType));
@@ -534,12 +537,24 @@ public class Main {
 	public static void buildQuery(String nameType, ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
 		ClassName claseImplements = ClassName.get("com.coxautodev.graphql.tools", "GraphQLQueryResolver");
 		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		ClassName claseExtends = ClassName.get("graphql.servlet" , "SimpleGraphQLServlet");
+		ClassName schemaParser = ClassName.get("com.coxautodev.graphql.tools" , "SchemaParser");
+		ClassName GraphQLSchema = ClassName.get("graphql.schema" , "GraphQLSchema");
+		ClassName webServlet = ClassName.get("javax.servlet.annotation" , "WebServlet");
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, claseImplements);
 		
 		TypeSpec.Builder builderQuery = TypeSpec.classBuilder(nameType + "example")
 			    .addModifiers(Modifier.PUBLIC)
 			    .addSuperinterface(claseImplements);
+		
+		TypeSpec.Builder builderGraphQLEndPoint = TypeSpec.classBuilder("GraphQLEndPointexample")
+				.addModifiers(Modifier.PUBLIC)
+				.superclass(claseExtends)
+			    .addAnnotation(AnnotationSpec.builder(webServlet)
+	                    .addMember("value", "$L", "urlPatterns = \"/graphql\"")
+	                    .build());
+		
 		
 		HashSet<String> repostiories = new HashSet<>();
 		
@@ -558,28 +573,49 @@ public class Main {
 		
 		MethodSpec.Builder constructorQueryBuilder = MethodSpec.constructorBuilder()
 			    .addModifiers(Modifier.PUBLIC);
+		
+		MethodSpec.Builder constructorGraphQLEndPoint = MethodSpec.constructorBuilder()
+			    .addModifiers(Modifier.PUBLIC)
+			    .addCode("super($T.newParser()\n", schemaParser)
+				.addCode(".file($S)\n", "ejemplo.graphqls")
+				.addCode(".resolvers(new $L(", "Query");
 			    
+		boolean first = true;
 		for(String repo : repostiories){
-			repo = repo + "Repository";
-			ClassName clase = ClassName.get("com.howtographql.hackernews", repo);
-			repo = repo + "Instance";
-			builderQuery.addField(clase, repo , Modifier.PRIVATE, Modifier.FINAL); 
-			constructorQueryBuilder.addParameter(clase, repo);
-			constructorQueryBuilder.addStatement("this.$N = $N", repo , repo );
+			String repository = repo + "Repository";
+			ClassName clase = ClassName.get("com.howtographql.hackernews", repository);
+			String repoInstance = repository + "Instance";
+			builderQuery.addField(clase, repoInstance , Modifier.PRIVATE, Modifier.FINAL); 
+			constructorQueryBuilder.addParameter(clase, repoInstance);
+			constructorQueryBuilder.addStatement("this.$N = $N", repoInstance , repoInstance );
+			
+			if(first) {constructorGraphQLEndPoint.addCode("new $L()", repository); first = false;}
+			else constructorGraphQLEndPoint.addCode(", new $L()", repository);
 			
 		}
 		
+		constructorGraphQLEndPoint.addCode("))\n");
+		constructorGraphQLEndPoint.addCode(".build()\n");
+		constructorGraphQLEndPoint.addCode(".makeExecutableSchema());");
+		
+		
 		builderQuery.addMethod(constructorQueryBuilder.build());
 		
+		builderGraphQLEndPoint.addMethod(constructorGraphQLEndPoint.build());
 		
+		//Query
 		TypeSpec typeSpec = builderQuery.build();
-		
 		JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
 			    .build();
-
 		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
 		
-		////HACER GRAPHQLENDPOINT
+		//GraphQLEndPoint
+		typeSpec = builderGraphQLEndPoint.build();
+		javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+			    .build();
+		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
+		
+
 	}
 
 
