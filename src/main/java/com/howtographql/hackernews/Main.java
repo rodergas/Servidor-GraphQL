@@ -319,6 +319,7 @@ public class Main {
 		return finalScalar;
 	}
 	public static void buildType(String nameType, String nameInterface, HashMap<String, ArrayList<String>> interfaces, ArrayList<String> interfacesToImplement,  ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
+		
 		//Type District
 		if(nameType != "" && !nameType.equals("Query")){
 			int i = 0;
@@ -331,7 +332,7 @@ public class Main {
 			for(String nameField : nameFields){
 				
 				String finalScalar = scalarFields.get(i);
-				System.out.println(nameField + " " + finalScalar);
+
 				boolean lista = finalScalar.contains("[") && finalScalar.contains("]");
 				//[String!] -> String (finalScalar)
 				finalScalar = getFinalScalar(finalScalar);
@@ -510,7 +511,8 @@ public class Main {
 			JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
 				    .build();
 
-			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	 
+			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));
+			
 		}
 	}
 	
@@ -680,6 +682,7 @@ public class Main {
 				//Is a interface
 				else if(line.toLowerCase().contains("interface")  && line.contains("{")){
 					nameInterface = getName(line, "interface");
+					
 				}
 				//Is a field
 				else if(line.toLowerCase().contains(":")){
@@ -690,7 +693,7 @@ public class Main {
 				else if(line.contains("}")){
 					empieza = false;
 					if(nameType.equals("Query")) buildQuery(nameType, nameFields, scalarFields);
-					else buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
+					else if(!nameType.isEmpty() || !nameInterface.isEmpty()) buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
 					if(nameInterface.isEmpty() && !nameType.isEmpty() && !nameType.equals("Query"))buildRepository(nameType);
 					interfacesToImplement = new ArrayList<>();
 					nameFields = new ArrayList<>();

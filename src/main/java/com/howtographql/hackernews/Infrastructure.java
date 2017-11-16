@@ -1,14 +1,11 @@
 package com.howtographql.hackernews;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public interface Infrastructure {
+  GeographicalCoordinate getLocatedIn();
 
+  ArrayList<Infrastructure> getNearByInfrastructure();
 
-	ArrayList<Infrastructure> getNearByInfrastructure();
-	GeographicalCoordinate getLocatedIn();
-	String getInfrastructureType();
-	
-	
+  String getInfrastructureType();
 }

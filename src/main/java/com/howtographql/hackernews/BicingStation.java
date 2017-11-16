@@ -41,18 +41,12 @@ public class BicingStation implements Infrastructure {
     return modifyScalarValue(connectVirtuoso("http://www.example.com/stationStreetName").get(0));
   }
 
-  public ArrayList<String> getStationType() {
-    ArrayList<String> stationType = connectVirtuoso("http://www.example.com/stationType");
-    ArrayList<String> stationTypes = new ArrayList<>();
-    for(String id:stationType) stationTypes.add(id);
-    return stationTypes;
+  public String getStationType() {
+    return modifyScalarValue(connectVirtuoso("http://www.example.com/stationType").get(0));
   }
 
-  public ArrayList<Integer> getStationBikesNumber() {
-    ArrayList<String> stationBikesNumber = connectVirtuoso("http://www.example.com/stationBikesNumber");
-    ArrayList<Integer> stationBikesNumbers = new ArrayList<>();
-    for(String id:stationBikesNumber) stationBikesNumbers.add(Integer.parseInt(id));
-    return stationBikesNumbers;
+  public Integer getStationBikesNumber() {
+    return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/stationBikesNumber").get(0)));
   }
 
   public Integer getStationID() {
