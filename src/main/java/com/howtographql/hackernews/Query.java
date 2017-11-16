@@ -1,69 +1,65 @@
 package com.howtographql.hackernews;
 
+import com.coxautodev.graphql.tools.GraphQLQueryResolver;
+import java.lang.String;
 import java.util.List;
 
-import com.coxautodev.graphql.tools.GraphQLQueryResolver;
-
-
 public class Query implements GraphQLQueryResolver {
-    
-    private final GeographicalCoordinateRepository geographicalCoordinateRepository;
-    private final BicingStationRepository bicingStationRepository;
-    private final MetroAndBusStopRepository metroAndBusStopRepository;
-    private final DistrictRepository districtRepository;
-    private final SuburbRepository suburbRepository;
+  private final MetroAndBusStopRepository MetroAndBusStopRepositoryInstance;
 
+  private final BicingStationRepository BicingStationRepositoryInstance;
 
-    public Query(MetroAndBusStopRepository metroAndBusStopRepository, BicingStationRepository bicingStationRepository, SuburbRepository suburbRepository, GeographicalCoordinateRepository geographicalCoordinateRepository, DistrictRepository districtRepository) {
-        this.geographicalCoordinateRepository = geographicalCoordinateRepository;
-        this.bicingStationRepository = bicingStationRepository;
-        this.metroAndBusStopRepository = metroAndBusStopRepository;
-        this.districtRepository = districtRepository;
-        this.suburbRepository = suburbRepository;
+  private final SuburbRepository SuburbRepositoryInstance;
 
-    }
+  private final GeographicalCoordinateRepository GeographicalCoordinateRepositoryInstance;
 
-    public List<GeographicalCoordinate> allGeographicalCoordinates() {
+  private final DistrictRepository DistrictRepositoryInstance;
 
-        return geographicalCoordinateRepository.getAllGeographicalCoordinates();
-        
-    }
+  public Query(MetroAndBusStopRepository MetroAndBusStopRepositoryInstance, BicingStationRepository BicingStationRepositoryInstance, SuburbRepository SuburbRepositoryInstance, GeographicalCoordinateRepository GeographicalCoordinateRepositoryInstance, DistrictRepository DistrictRepositoryInstance) {
+    this.MetroAndBusStopRepositoryInstance = MetroAndBusStopRepositoryInstance;
+    this.BicingStationRepositoryInstance = BicingStationRepositoryInstance;
+    this.SuburbRepositoryInstance = SuburbRepositoryInstance;
+    this.GeographicalCoordinateRepositoryInstance = GeographicalCoordinateRepositoryInstance;
+    this.DistrictRepositoryInstance = DistrictRepositoryInstance;
+  }
 
-    public List<BicingStation> allBicingStations() {
-        return bicingStationRepository.getAllBicingStations();
-    }
-    
-    public List<MetroAndBusStop> allMetroAndBusStops() {
-        return metroAndBusStopRepository.getAllMetroAndBusStops();
-    }
-    
-    public List<Suburb> allSuburbs(){
-    	return suburbRepository.getAllSuburbs();
-    }
-    
-    public List<District> allDistricts(){
-    	return districtRepository.getAllDistricts();
-    }
-    
-    public District getDistrict(String id){
-    	return districtRepository.getDistrict(id);
-    }
-    
-    public Suburb getSuburb(String id){
-    	return suburbRepository.getSuburb(id);
-    }
-    
-    public MetroAndBusStop getMetroAndBusStop(String id){
-    	return metroAndBusStopRepository.getMetroAndBusStop(id);
-    }
-    
-    public GeographicalCoordinate getGeographicalCoordinate(String id){
-    	return geographicalCoordinateRepository.getGeographicalCoordinate(id);
-    }
-    
-    public BicingStation getBicingStation(String id){
-    	return bicingStationRepository.getBicingStation(id);
-    }
+  public List<GeographicalCoordinate> allGeographicalCoordinates() {
+    return GeographicalCoordinateRepositoryInstance.getAllGeographicalCoordinates();
+  }
 
-	
+  public GeographicalCoordinate getGeographicalCoordinate(String id) {
+    return GeographicalCoordinateRepositoryInstance.getGeographicalCoordinate(id);
+  }
+
+  public List<District> allDistricts() {
+    return DistrictRepositoryInstance.getAllDistricts();
+  }
+
+  public District getDistrict(String id) {
+    return DistrictRepositoryInstance.getDistrict(id);
+  }
+
+  public List<MetroAndBusStop> allMetroAndBusStops() {
+    return MetroAndBusStopRepositoryInstance.getAllMetroAndBusStops();
+  }
+
+  public MetroAndBusStop getMetroAndBusStop(String id) {
+    return MetroAndBusStopRepositoryInstance.getMetroAndBusStop(id);
+  }
+
+  public List<BicingStation> allBicingStations() {
+    return BicingStationRepositoryInstance.getAllBicingStations();
+  }
+
+  public BicingStation getBicingStation(String id) {
+    return BicingStationRepositoryInstance.getBicingStation(id);
+  }
+
+  public List<Suburb> allSuburbs() {
+    return SuburbRepositoryInstance.getAllSuburbs();
+  }
+
+  public Suburb getSuburb(String id) {
+    return SuburbRepositoryInstance.getSuburb(id);
+  }
 }

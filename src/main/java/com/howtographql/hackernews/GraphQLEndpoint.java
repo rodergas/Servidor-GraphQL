@@ -1,34 +1,15 @@
 package com.howtographql.hackernews;
 
+import com.coxautodev.graphql.tools.SchemaParser;
+import graphql.servlet.SimpleGraphQLServlet;
 import javax.servlet.annotation.WebServlet;
 
-import com.coxautodev.graphql.tools.SchemaParser;
-
-import graphql.schema.GraphQLSchema;
-import graphql.servlet.SimpleGraphQLServlet;
-
 @WebServlet(urlPatterns = "/graphql")
-public class GraphQLEndpoint extends SimpleGraphQLServlet {
-	
-    public GraphQLEndpoint() {
-        super(buildSchema());
-    }
-    
-    private static GraphQLSchema buildSchema() {
-    	GeographicalCoordinateRepository geographicalCoordinateRepository = new GeographicalCoordinateRepository();
-    	BicingStationRepository bicingStationRepository = new BicingStationRepository();
-    	MetroAndBusStopRepository metroAndBusStopRepository = new MetroAndBusStopRepository();
-    	DistrictRepository districtRepository = new DistrictRepository();
-    	SuburbRepository suburbRepository = new SuburbRepository();
-    	
-    	
-    	
-    	
-        return SchemaParser.newParser()
-                .file("ejemplo.graphqls")
-                .resolvers(new Query(metroAndBusStopRepository,bicingStationRepository,suburbRepository,geographicalCoordinateRepository,  districtRepository ))
-                //.dictionary(MetroAndBusStop.class)
-                .build()
-                .makeExecutableSchema();
-    }
+public class GraphQLEndPoint extends SimpleGraphQLServlet {
+  public GraphQLEndPoint() {
+    super(SchemaParser.newParser()
+    .file("ejemplo.graphqls")
+    .resolvers(new Query(new MetroAndBusStopRepository(), new BicingStationRepository(), new SuburbRepository(), new GeographicalCoordinateRepository(), new DistrictRepository()))
+    .build()
+    .makeExecutableSchema());}
 }

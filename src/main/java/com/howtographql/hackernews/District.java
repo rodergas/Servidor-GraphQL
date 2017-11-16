@@ -1,80 +1,76 @@
 package com.howtographql.hackernews;
 
+import java.lang.Integer;
+import java.lang.String;
 import java.util.ArrayList;
-
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 public class District {
-	private String idTurtle;
-	
-	private Integer districtNumber;
-	private String districtName;
-	
-	public District(String idTurtle){
-		this.idTurtle = idTurtle;
-	}
-	
-	public District(String districtName, Integer districtNumber){
-		this.setDistrictNumber(districtNumber);
-		this.setDistrictName(districtName);
-	}
+  private String idTurtle;
 
-	public Integer getDistrictNumber() {
-		return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/districtNumber").get(0)));
-	}
+  public District(String idTurtle) {
+    this.idTurtle = idTurtle;
+  }
 
-	public void setDistrictNumber(Integer districtNumber) {
-		this.districtNumber = districtNumber;
-	}
+  public Integer getDistrictNumber() {
+    return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/districtNumber").get(0)));
+  }
 
-	public String getDistrictName() {
-		return modifyScalarValue(connectVirtuoso("http://www.example.com/districtName").get(0));
-	}
+  public String getDistrictName() {
+    return modifyScalarValue(connectVirtuoso("http://www.example.com/districtName").get(0));
+  }
 
-	public void setDistrictName(String districtName) {
-		this.districtName = districtName;
-	}
+  private String modifyScalarValue(String value) {
+    int index = value.toString().indexOf("^");
+    String resultat =  value.toString().substring(0, index);
+    return resultat;
+  }
 
-	private String getIdTurtle() {
-		return idTurtle;
-	}
+  public ArrayList<String> connectVirtuoso(String value) {
+    VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
+    + "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
+    + "}");
+     
+    VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+    ResultSet res = vqe.execSelect();
+    ArrayList<String> valor = new ArrayList<>();
 
-	private void setIdTurtle(String idTurtle) {
-		this.idTurtle = idTurtle;
-	}
-	
-    private String modifyScalarValue(String value){
-    	int index = value.toString().indexOf("^");
-		String resultat =  value.toString().substring(0, index);
-		return resultat;
+    while(res.hasNext()){
+    	 QuerySolution qs = res.next();
+    	 valor.add(qs.get("?valor").toString());
     }
-    
-    private ArrayList<String> connectVirtuoso(String value){
-		VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    	Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-				+ "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
-				+ "}");
 
-    	VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
-		ResultSet res = vqe.execSelect();
-		ArrayList<String> valor = new ArrayList<>();
-		
-		while(res.hasNext()){
+    graph.close();
+    return valor;
+  }
 
-			QuerySolution qs = res.next();
-			valor.add(qs.get("?valor").toString());
-		}
-    	
-		graph.close();
-		return valor;
+  public ArrayList<String> connectVirtuoso(String value, String id) {
+    VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
+    + "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
+    + "}");
+     
+    VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
+    ResultSet res = vqe.execSelect();
+    ArrayList<String> valor = new ArrayList<>();
+
+    while(res.hasNext()){
+    	 QuerySolution qs = res.next();
+    	 valor.add(qs.get("?valor").toString());
     }
+
+    graph.close();
+    return valor;
+  }
+
+  private String getIdTurtle() {
+    return idTurtle;
+  }
 }
-	
-

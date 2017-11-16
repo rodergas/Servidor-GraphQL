@@ -237,6 +237,7 @@ public class Main {
 	
 	public static MethodSpec constructorRepository(String nameType){
 		
+		ClassName ArrayList = ClassName.get("java.util", "ArrayList");
 		ClassName Query = ClassName.get("org.apache.jena.query", "Query");
 		ClassName QueryFactory = ClassName.get("org.apache.jena.query", "QueryFactory");
 		ClassName QuerySolution = ClassName.get("org.apache.jena.query", "QuerySolution");
@@ -249,7 +250,7 @@ public class Main {
 		
 		
 		MethodSpec method = MethodSpec.constructorBuilder()
-				.addCode("$L = new ArrayList<>();\n", nameType + "s")
+				.addCode("$L = new $T<>();\n", nameType + "s", ArrayList)
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
 				.addCode("$T sparql = $T.create(\"Select ?subject FROM <http://localhost:8890/Example4> WHERE {\"\n", Query, QueryFactory)
 				.addCode("+ \"OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/$L>}.\"\n", nameType)
@@ -271,7 +272,7 @@ public class Main {
 	public static MethodSpec allInstances(String nameType){
 		
 		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
-		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		ClassName arrayList = ClassName.get("java.util", "List");
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
 		
@@ -448,7 +449,7 @@ public class Main {
 			methods.add(constructor());
 			
 			
-			TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "example")
+			TypeSpec.Builder builder = TypeSpec.classBuilder(nameType)
 					.addModifiers(Modifier.PUBLIC)
 					.addField(String.class, "idTurtle", Modifier.PRIVATE);
 			
@@ -496,7 +497,7 @@ public class Main {
 				
 				i++;
 			}
-			TypeSpec.Builder builder = TypeSpec.interfaceBuilder(nameInterface + "example")
+			TypeSpec.Builder builder = TypeSpec.interfaceBuilder(nameInterface)
 				    .addModifiers(Modifier.PUBLIC);
 			
 			for(MethodSpec m : methods){
@@ -514,11 +515,11 @@ public class Main {
 	
 	public static void buildRepository(String nameType) throws IOException{
 		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
-		ClassName arrayList = ClassName.get("java.util", "ArrayList");
+		ClassName arrayList = ClassName.get("java.util", "List");
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
 		
-		TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "Repositoryexample")
+		TypeSpec.Builder builder = TypeSpec.classBuilder(nameType + "Repository")
 			    .addModifiers(Modifier.PUBLIC)
 				.addField(listOfClass, nameType + "s", Modifier.PRIVATE, Modifier.FINAL);
 		
@@ -544,11 +545,11 @@ public class Main {
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, claseImplements);
 		
-		TypeSpec.Builder builderQuery = TypeSpec.classBuilder(nameType + "example")
+		TypeSpec.Builder builderQuery = TypeSpec.classBuilder(nameType)
 			    .addModifiers(Modifier.PUBLIC)
 			    .addSuperinterface(claseImplements);
 		
-		TypeSpec.Builder builderGraphQLEndPoint = TypeSpec.classBuilder("GraphQLEndPointexample")
+		TypeSpec.Builder builderGraphQLEndPoint = TypeSpec.classBuilder("GraphQLEndPoint")
 				.addModifiers(Modifier.PUBLIC)
 				.superclass(claseExtends)
 			    .addAnnotation(AnnotationSpec.builder(webServlet)

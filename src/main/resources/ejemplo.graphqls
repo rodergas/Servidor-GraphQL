@@ -25,7 +25,7 @@ type BicingStation implements Infrastructure{
 	locatedIn: GeographicalCoordinate! 
 	nearByInfrastructure: [Infrastructure] 
 	stationStreetName: String! 
-	stationType: [String!] 
+	stationType: String! 
 	stationBikesNumber: Int! 
 	stationID: ID! 
 	stationAltitude: Float! 
