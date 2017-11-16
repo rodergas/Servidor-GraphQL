@@ -331,6 +331,7 @@ public class Main {
 			for(String nameField : nameFields){
 				
 				String finalScalar = scalarFields.get(i);
+				System.out.println(nameField + " " + finalScalar);
 				boolean lista = finalScalar.contains("[") && finalScalar.contains("]");
 				//[String!] -> String (finalScalar)
 				finalScalar = getFinalScalar(finalScalar);
@@ -622,7 +623,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 		
-		FileInputStream fis = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo2.graphqls");
+		FileInputStream fis = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo.graphqls");
 		 
 		//Construct BufferedReader from InputStreamReader
 		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -659,7 +660,7 @@ public class Main {
 		br.close();
 		
 		//---------------
-		FileInputStream fis2 = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo2.graphqls");
+		FileInputStream fis2 = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo.graphqls");
 		BufferedReader file = new BufferedReader(new InputStreamReader(fis2));
 		empieza = false;
 		while ((line = file.readLine()) != null) {
