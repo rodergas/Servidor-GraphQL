@@ -35,6 +35,13 @@ import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
 public class Main {
 	
+	static private String fileDestination = Paths.get("./src/main/java").toAbsolutePath().normalize().toString();
+	static private String packageDestination = "com.howtographql.hackernews";
+	static private String dataBase = "http://localhost:8890/Example4";
+	static private String apiGraphQL = Paths.get("./src/main/resources/ejemplo.graphqls").toAbsolutePath().normalize().toString();
+	
+
+	
 	public static String getScalarField(String line){
 		String name = "";
 		for(int i = line.lastIndexOf(':'); i < line.length(); ++i){
@@ -107,7 +114,7 @@ public class Main {
 	}
 	
 	public static MethodSpec queryList(String nameType){
-		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName clase = ClassName.get(packageDestination, nameType);
 		ClassName arrayList = ClassName.get("java.util", "List");
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
@@ -121,7 +128,7 @@ public class Main {
 	}
 	
 	public static MethodSpec queryOne(String nameType){
-		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName clase = ClassName.get(packageDestination, nameType);
 
 		MethodSpec method = MethodSpec.methodBuilder("get" + nameType )
 				.addCode("return $LRepositoryInstance.get$L(id);\n", nameType, nameType)
@@ -151,7 +158,7 @@ public class Main {
 		MethodSpec method = MethodSpec.methodBuilder("connectVirtuoso")
 				.addParameter(String.class, "value")
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
-				.addCode("$T sparql = $T.create(\"Select ?valor FROM <http://localhost:8890/Example4> WHERE {\"\n", Query, QueryFactory)
+				.addCode("$T sparql = $T.create(\"Select ?valor FROM <$L> WHERE {\"\n", Query, QueryFactory, dataBase)
 				.addCode("+ \"OPTIONAL { <\"+ this.getIdTurtle() +\"> <\"+  value + \"> ?valor}.\"\n")
 				.addCode("+ \"}\");\n \n")
 				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
@@ -189,7 +196,7 @@ public class Main {
 				.addParameter(String.class, "value")
 				.addParameter(String.class, "id")
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
-				.addCode("$T sparql = $T.create(\"Select ?valor FROM <http://localhost:8890/Example4> WHERE {\"\n", Query, QueryFactory)
+				.addCode("$T sparql = $T.create(\"Select ?valor FROM <$L> WHERE {\"\n", Query, QueryFactory, dataBase)
 				.addCode("+ \"OPTIONAL { <\"+ id +\"> <\"+  value + \"> ?valor}.\"\n")
 				.addCode("+ \"}\");\n \n")
 				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
@@ -252,7 +259,7 @@ public class Main {
 		MethodSpec method = MethodSpec.constructorBuilder()
 				.addCode("$L = new $T<>();\n", nameType + "s", ArrayList)
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
-				.addCode("$T sparql = $T.create(\"Select ?subject FROM <http://localhost:8890/Example4> WHERE {\"\n", Query, QueryFactory)
+				.addCode("$T sparql = $T.create(\"Select ?subject FROM <$L> WHERE {\"\n", Query, QueryFactory, dataBase)
 				.addCode("+ \"OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/$L>}.\"\n", nameType)
 				.addCode("+ \"}\");\n \n")
 				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
@@ -271,7 +278,7 @@ public class Main {
 	
 	public static MethodSpec allInstances(String nameType){
 		
-		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName clase = ClassName.get(packageDestination, nameType);
 		ClassName arrayList = ClassName.get("java.util", "List");
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
@@ -287,7 +294,7 @@ public class Main {
 	
 	public static MethodSpec oneInstance(String nameType){
 		
-		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName clase = ClassName.get(packageDestination, nameType);
 		
 		MethodSpec method = MethodSpec.methodBuilder("get" + nameType)
 				.addParameter(String.class, "id")
@@ -383,7 +390,7 @@ public class Main {
 					//Other types (GeographicalCoordinate...)
 					//AAA : GeographicalCoordinate, District...
 					
-					ClassName className = ClassName.get("com.howtographql.hackernews", finalScalar);
+					ClassName className = ClassName.get(packageDestination, finalScalar);
 					ClassName arrayList = ClassName.get("java.util", "ArrayList");
 					TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
 					
@@ -460,15 +467,15 @@ public class Main {
 			}
 			
 			for(String inter : interfacesToImplement){
-				ClassName name = ClassName.get("com.howtographql.hackernews", inter);
+				ClassName name = ClassName.get(packageDestination, inter);
 				builder.addSuperinterface(name);
 			}
 			TypeSpec typeSpec = builder.build();
 			
-			JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+			JavaFile javaFile = JavaFile.builder(packageDestination, typeSpec)
 				    .build();
 
-			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	    
+			javaFile.writeTo(new File(fileDestination));	    
 
 		}
 		//Interface
@@ -482,7 +489,7 @@ public class Main {
 				//[String!] -> String (finalScalar)
 				finalScalar = getFinalScalar(finalScalar);
 				
-				ClassName className = ClassName.get("com.howtographql.hackernews", finalScalar);
+				ClassName className = ClassName.get(packageDestination, finalScalar);
 				ClassName arrayList = ClassName.get("java.util", "ArrayList");
 				TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
 				
@@ -508,16 +515,16 @@ public class Main {
 			
 			TypeSpec typeSpec = builder.build();
 			
-			JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+			JavaFile javaFile = JavaFile.builder(packageDestination, typeSpec)
 				    .build();
 
-			javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));
+			javaFile.writeTo(new File(fileDestination));
 			
 		}
 	}
 	
 	public static void buildRepository(String nameType) throws IOException{
-		ClassName clase = ClassName.get("com.howtographql.hackernews", nameType);
+		ClassName clase = ClassName.get(packageDestination, nameType);
 		ClassName arrayList = ClassName.get("java.util", "List");
 		
 		TypeName listOfClass = ParameterizedTypeName.get(arrayList, clase);
@@ -532,10 +539,10 @@ public class Main {
 		
 		TypeSpec typeSpec = builder.build();
 		
-		JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+		JavaFile javaFile = JavaFile.builder(packageDestination, typeSpec)
 			    .build();
 
-		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
+		javaFile.writeTo(new File(fileDestination));	
 	}
 	
 	public static void buildQuery(String nameType, ArrayList<String> nameFields,  ArrayList<String> scalarFields) throws IOException{
@@ -587,7 +594,7 @@ public class Main {
 		boolean first = true;
 		for(String repo : repostiories){
 			String repository = repo + "Repository";
-			ClassName clase = ClassName.get("com.howtographql.hackernews", repository);
+			ClassName clase = ClassName.get(packageDestination, repository);
 			String repoInstance = repository + "Instance";
 			builderQuery.addField(clase, repoInstance , Modifier.PRIVATE, Modifier.FINAL); 
 			constructorQueryBuilder.addParameter(clase, repoInstance);
@@ -609,23 +616,23 @@ public class Main {
 		
 		//Query
 		TypeSpec typeSpec = builderQuery.build();
-		JavaFile javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+		JavaFile javaFile = JavaFile.builder(packageDestination, typeSpec)
 			    .build();
-		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
+		javaFile.writeTo(new File(fileDestination));	
 		
 		//GraphQLEndPoint
 		typeSpec = builderGraphQLEndPoint.build();
-		javaFile = JavaFile.builder("com.howtographql.hackernews", typeSpec)
+		javaFile = JavaFile.builder(packageDestination, typeSpec)
 			    .build();
-		javaFile.writeTo(new File(Paths.get("./src/main/java").toAbsolutePath().normalize().toString()));	
+		javaFile.writeTo(new File(fileDestination));	
 		
 
 	}
 
 
 	public static void main(String[] args) throws IOException {
-		
-		FileInputStream fis = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo.graphqls");
+
+		FileInputStream fis = new FileInputStream(apiGraphQL);
 		 
 		//Construct BufferedReader from InputStreamReader
 		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -662,7 +669,7 @@ public class Main {
 		br.close();
 		
 		//---------------
-		FileInputStream fis2 = new FileInputStream("C:\\Users\\rober_000\\workspace\\hackernews-graphql-java\\src\\main\\resources\\ejemplo.graphqls");
+		FileInputStream fis2 = new FileInputStream(apiGraphQL);
 		BufferedReader file = new BufferedReader(new InputStreamReader(fis2));
 		empieza = false;
 		while ((line = file.readLine()) != null) {
@@ -692,8 +699,9 @@ public class Main {
 				//End of type/interface
 				else if(line.contains("}")){
 					empieza = false;
+					System.out.println(nameInterface);
 					if(nameType.equals("Query")) buildQuery(nameType, nameFields, scalarFields);
-					else if(!nameType.isEmpty() || !nameInterface.isEmpty()) buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
+					if(!nameType.isEmpty() || !nameInterface.isEmpty()) buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
 					if(nameInterface.isEmpty() && !nameType.isEmpty() && !nameType.equals("Query"))buildRepository(nameType);
 					interfacesToImplement = new ArrayList<>();
 					nameFields = new ArrayList<>();
