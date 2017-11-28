@@ -19,11 +19,15 @@ public class GeographicalCoordinate {
   }
 
   public Float getLatitude() {
-    return Float.parseFloat(modifyScalarValue(connectVirtuoso("http://www.example.com/latitude").get(0)));
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/latitude") ;
+    if(result.size() == 0) return null;
+    else return Float.parseFloat(modifyScalarValue(result.get(0)));
   }
 
   public Float getLongitude() {
-    return Float.parseFloat(modifyScalarValue(connectVirtuoso("http://www.example.com/longitude").get(0)));
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/longitude") ;
+    if(result.size() == 0) return null;
+    else return Float.parseFloat(modifyScalarValue(result.get(0)));
   }
 
   private String modifyScalarValue(String value) {
@@ -34,8 +38,8 @@ public class GeographicalCoordinate {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    + " <"+ this.getIdTurtle() +"> <"+  value + "> ?valor."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -53,8 +57,8 @@ public class GeographicalCoordinate {
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);

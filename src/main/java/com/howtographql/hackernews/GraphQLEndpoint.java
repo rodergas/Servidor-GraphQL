@@ -9,7 +9,7 @@ public class GraphQLEndPoint extends SimpleGraphQLServlet {
   public GraphQLEndPoint() {
     super(SchemaParser.newParser()
     .file("ejemplo.graphqls")
-    .resolvers(new Query(new MetroAndBusStopRepository(), new BicingStationRepository(), new SuburbRepository(), new GeographicalCoordinateRepository(), new DistrictRepository()))
+    .resolvers(new Query(new MetroAndBusStopRepository(), new SuburbRepository(), new BicingStationRepository(), new GeographicalCoordinateRepository(), new DistrictRepository()))
     .build()
     .makeExecutableSchema());}
 }

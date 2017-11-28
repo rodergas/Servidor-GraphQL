@@ -37,7 +37,7 @@ public class Main {
 	
 	static private String fileDestination = Paths.get("./src/main/java").toAbsolutePath().normalize().toString();
 	static private String packageDestination = "com.howtographql.hackernews";
-	static private String dataBase = "http://localhost:8890/Example4";
+	static private String dataBase = "http://localhost:8890/Example101";
 	static private String apiGraphQL = Paths.get("./src/main/resources/ejemplo.graphqls").toAbsolutePath().normalize().toString();
 	
 
@@ -159,7 +159,7 @@ public class Main {
 				.addParameter(String.class, "value")
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
 				.addCode("$T sparql = $T.create(\"Select ?valor FROM <$L> WHERE {\"\n", Query, QueryFactory, dataBase)
-				.addCode("+ \"OPTIONAL { <\"+ this.getIdTurtle() +\"> <\"+  value + \"> ?valor}.\"\n")
+				.addCode("+ \" <\"+ this.getIdTurtle() +\"> <\"+  value + \"> ?valor.\"\n")
 				.addCode("+ \"}\");\n \n")
 				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
 				.addCode("$T res = vqe.execSelect();\n", ResultSet)
@@ -197,7 +197,7 @@ public class Main {
 				.addParameter(String.class, "id")
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
 				.addCode("$T sparql = $T.create(\"Select ?valor FROM <$L> WHERE {\"\n", Query, QueryFactory, dataBase)
-				.addCode("+ \"OPTIONAL { <\"+ id +\"> <\"+  value + \"> ?valor}.\"\n")
+				.addCode("+ \" <\"+ id +\"> <\"+  value + \"> ?valor.\"\n")
 				.addCode("+ \"}\");\n \n")
 				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
 				.addCode("$T res = vqe.execSelect();\n", ResultSet)
@@ -260,7 +260,7 @@ public class Main {
 				.addCode("$L = new $T<>();\n", nameType + "s", ArrayList)
 				.addCode("$T graph = new $T (\"TFG_Example1\", \"jdbc:virtuoso://localhost:1111\", \"dba\", \"dba\");\n", VirtGraph , VirtGraph)
 				.addCode("$T sparql = $T.create(\"Select ?subject FROM <$L> WHERE {\"\n", Query, QueryFactory, dataBase)
-				.addCode("+ \"OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/$L>}.\"\n", nameType)
+				.addCode("+ \" ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/$L>.\"\n", nameType)
 				.addCode("+ \"}\");\n \n")
 				.addCode("$T vqe = $T.create (sparql, graph);\n",VirtuosoQueryExecution, VirtuosoQueryExecutionFactory)
 				.addCode("$T res = vqe.execSelect();\n", ResultSet)
@@ -367,21 +367,34 @@ public class Main {
 				    			if((inter + "Type").toLowerCase().equals(nameField.toLowerCase())) {methodBuild.addStatement("return $S", nameType); isType = true; break;}
 				    		}
 				    		// statioNAdress : String
-				    		if(!isType)methodBuild.addStatement("return modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0))", nameField);
+				    		if(!isType){
+				    			methodBuild.addStatement("ArrayList<String> result = connectVirtuoso(\"http://www.example.com/$L\") ", nameField);
+				    			methodBuild.addStatement("if(result.size() == 0) return null");
+				    			methodBuild.addStatement("else return modifyScalarValue(result.get(0))");
+				    		}
 				    	}
-				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, "Int", nameField);
-				    	else methodBuild.addStatement("return $L.parse$L(modifyScalarValue(connectVirtuoso(\"http://www.example.com/$L\").get(0)))", finalScalar, finalScalar, nameField);
+				    	else if(finalScalar.equals("Integer")){
+			    			methodBuild.addStatement("ArrayList<String> result = connectVirtuoso(\"http://www.example.com/$L\") ", nameField);
+			    			methodBuild.addStatement("if(result.size() == 0) return null");
+				    		methodBuild.addStatement("else return $L.parse$L(modifyScalarValue(result.get(0)))", finalScalar, "Int");
+				    	}
+				    	else {
+			    			methodBuild.addStatement("ArrayList<String> result = connectVirtuoso(\"http://www.example.com/$L\") ", nameField);
+			    			methodBuild.addStatement("if(result.size() == 0) return null");
+				    		methodBuild.addStatement("else return $L.parse$L(modifyScalarValue(result.get(0)))", finalScalar, finalScalar);
+				    	}
 				    }else{
 				    // AAA : [Int]
 				    	methodBuild.returns(listOfClassName);
 						methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
 						methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
 						
-						if(finalScalar.equals("String")) methodBuild.addStatement("for(String id:$L) $L.add(id)", nameField, nameField + "s");
-				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("for(String id:$L) $L.add($L.parse$L(id))", nameField, nameField + "s", finalScalar, "Int");
-				    	else methodBuild.addStatement("for(String id:$L) $L.add($L.parse$L(id))", nameField, nameField + "s", finalScalar, finalScalar);
+						if(finalScalar.equals("String")) methodBuild.addStatement("for(String value:$L) $L.add(modifyScalarValue(value))", nameField, nameField + "s");
+				    	else if(finalScalar.equals("Integer")) methodBuild.addStatement("for(String value:$L) $L.add($L.parse$L(modifyScalarValue(value)))", nameField, nameField + "s", finalScalar, "Int");
+				    	else methodBuild.addStatement("for(String value:$L) $L.add($L.parse$L(modifyScalarValue(value)))", nameField, nameField + "s", finalScalar, finalScalar);
 						
-						methodBuild.addStatement("return $L", nameField + "s");
+						methodBuild.addStatement("if($L.size() == 0) return null", nameField + "s");
+						methodBuild.addStatement("else return $L", nameField + "s");
 				    }
 					MethodSpec method = methodBuild.build();
 					
@@ -407,12 +420,16 @@ public class Main {
 						if(!lista){
 							// AAA : Infrastructure
 							methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
+							methodBuild.addCode("$L $L = null;\n", finalScalar, "result");
 							methodBuild.addCode("for(String id: $L){\n", nameField);
 							for(String possibleOption : possibleOptions){
-								methodBuild.addCode("\t if(connectVirtuoso(\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\", id).get(0).equals(\"http://www.example.com/$L\")) $L $L = new $L(id); \n",possibleOption ,finalScalar , "result",possibleOption );
+								methodBuild.addCode("\t if(connectVirtuoso(\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\", id).get(0).equals(\"http://www.example.com/$L\"))  $L = new $L(id); \n",possibleOption , "result",possibleOption );
 							}
 							methodBuild.addCode("}\n");
-							methodBuild.addStatement("return $L", "result");
+							
+							methodBuild.addStatement("if($L == null) return null", "result");
+							methodBuild.addStatement("else return $L", "result");
+							
 							methodBuild.returns(className);
 						}else{
 								// AA : [Infrastructure]
@@ -423,7 +440,8 @@ public class Main {
 								methodBuild.addCode("\t if(connectVirtuoso(\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\", id).get(0).equals(\"http://www.example.com/$L\")) $L.add(new $L(id)); \n",possibleOption , nameField+ "s", possibleOption );
 							}
 							methodBuild.addCode("}\n");
-							methodBuild.addStatement("return $L", nameField+ "s");
+							methodBuild.addStatement("if($L.size() == 0) return null", nameField + "s");
+							methodBuild.addStatement("else return $L", nameField+ "s");
 							methodBuild.returns(listOfClassName);
 						}
 					}
@@ -433,14 +451,17 @@ public class Main {
 						if(!lista){
 							// AAA : District
 							methodBuild.returns(className);
-							methodBuild.addStatement("return new $L(connectVirtuoso(\"http://www.example.com/$L\").get(0))", finalScalar, nameField);
+			    			methodBuild.addStatement("ArrayList<String> result = connectVirtuoso(\"http://www.example.com/$L\") ", nameField);
+			    			methodBuild.addStatement("if(result.size() == 0) return null");
+				    		methodBuild.addStatement("else return new $L(result.get(0))", finalScalar);
 						}else{
 							// AAA : [District]
 							methodBuild.returns(listOfClassName);
 							methodBuild.addStatement("ArrayList<String> $L = connectVirtuoso(\"http://www.example.com/$L\")", nameField, nameField);
 							methodBuild.addStatement("ArrayList<$L> $L = new ArrayList<>()", finalScalar, nameField+ "s");
 							methodBuild.addStatement("for(String id:$L) $L.add(new $L(id))", nameField, nameField + "s", finalScalar);
-							methodBuild.addStatement("return $L", nameField + "s");
+							methodBuild.addStatement("if($L.size() == 0) return null", nameField + "s");
+							methodBuild.addStatement("else return $L", nameField + "s");
 						}
 					}
 					
@@ -699,7 +720,6 @@ public class Main {
 				//End of type/interface
 				else if(line.contains("}")){
 					empieza = false;
-					System.out.println(nameInterface);
 					if(nameType.equals("Query")) buildQuery(nameType, nameFields, scalarFields);
 					if(!nameType.isEmpty() || !nameInterface.isEmpty()) buildType(nameType, nameInterface,interfaces, interfacesToImplement, nameFields, scalarFields);
 					if(nameInterface.isEmpty() && !nameType.isEmpty() && !nameType.equals("Query"))buildRepository(nameType);
@@ -715,6 +735,7 @@ public class Main {
 		}
 
 		file.close();
+		
 	}
 
 }

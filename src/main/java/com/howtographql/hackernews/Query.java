@@ -7,36 +7,20 @@ import java.util.List;
 public class Query implements GraphQLQueryResolver {
   private final MetroAndBusStopRepository MetroAndBusStopRepositoryInstance;
 
-  private final BicingStationRepository BicingStationRepositoryInstance;
-
   private final SuburbRepository SuburbRepositoryInstance;
+
+  private final BicingStationRepository BicingStationRepositoryInstance;
 
   private final GeographicalCoordinateRepository GeographicalCoordinateRepositoryInstance;
 
   private final DistrictRepository DistrictRepositoryInstance;
 
-  public Query(MetroAndBusStopRepository MetroAndBusStopRepositoryInstance, BicingStationRepository BicingStationRepositoryInstance, SuburbRepository SuburbRepositoryInstance, GeographicalCoordinateRepository GeographicalCoordinateRepositoryInstance, DistrictRepository DistrictRepositoryInstance) {
+  public Query(MetroAndBusStopRepository MetroAndBusStopRepositoryInstance, SuburbRepository SuburbRepositoryInstance, BicingStationRepository BicingStationRepositoryInstance, GeographicalCoordinateRepository GeographicalCoordinateRepositoryInstance, DistrictRepository DistrictRepositoryInstance) {
     this.MetroAndBusStopRepositoryInstance = MetroAndBusStopRepositoryInstance;
-    this.BicingStationRepositoryInstance = BicingStationRepositoryInstance;
     this.SuburbRepositoryInstance = SuburbRepositoryInstance;
+    this.BicingStationRepositoryInstance = BicingStationRepositoryInstance;
     this.GeographicalCoordinateRepositoryInstance = GeographicalCoordinateRepositoryInstance;
     this.DistrictRepositoryInstance = DistrictRepositoryInstance;
-  }
-
-  public List<GeographicalCoordinate> allGeographicalCoordinates() {
-    return GeographicalCoordinateRepositoryInstance.getAllGeographicalCoordinates();
-  }
-
-  public GeographicalCoordinate getGeographicalCoordinate(String id) {
-    return GeographicalCoordinateRepositoryInstance.getGeographicalCoordinate(id);
-  }
-
-  public List<District> allDistricts() {
-    return DistrictRepositoryInstance.getAllDistricts();
-  }
-
-  public District getDistrict(String id) {
-    return DistrictRepositoryInstance.getDistrict(id);
   }
 
   public List<MetroAndBusStop> allMetroAndBusStops() {
@@ -47,6 +31,22 @@ public class Query implements GraphQLQueryResolver {
     return MetroAndBusStopRepositoryInstance.getMetroAndBusStop(id);
   }
 
+  public List<Suburb> allSuburbs() {
+    return SuburbRepositoryInstance.getAllSuburbs();
+  }
+
+  public Suburb getSuburb(String id) {
+    return SuburbRepositoryInstance.getSuburb(id);
+  }
+
+  public List<GeographicalCoordinate> allGeographicalCoordinates() {
+    return GeographicalCoordinateRepositoryInstance.getAllGeographicalCoordinates();
+  }
+
+  public GeographicalCoordinate getGeographicalCoordinate(String id) {
+    return GeographicalCoordinateRepositoryInstance.getGeographicalCoordinate(id);
+  }
+
   public List<BicingStation> allBicingStations() {
     return BicingStationRepositoryInstance.getAllBicingStations();
   }
@@ -55,11 +55,11 @@ public class Query implements GraphQLQueryResolver {
     return BicingStationRepositoryInstance.getBicingStation(id);
   }
 
-  public List<Suburb> allSuburbs() {
-    return SuburbRepositoryInstance.getAllSuburbs();
+  public List<District> allDistricts() {
+    return DistrictRepositoryInstance.getAllDistricts();
   }
 
-  public Suburb getSuburb(String id) {
-    return SuburbRepositoryInstance.getSuburb(id);
+  public District getDistrict(String id) {
+    return DistrictRepositoryInstance.getDistrict(id);
   }
 }

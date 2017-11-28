@@ -1,57 +1,63 @@
-interface Infrastructure { 
-	locatedIn: GeographicalCoordinate! 
-	nearByInfrastructure: [Infrastructure] 
-	InfrastructureType: String! 
-}  
- 
-type GeographicalCoordinate { 
-	latitude: Float! 
-	longitude: Float! 
-}  
-type District { 
-	districtNumber: Int! 
-	districtName: String! 
-}  
-type MetroAndBusStop implements Infrastructure{ 
-	InfrastructureType: String! 
-	locatedIn: GeographicalCoordinate! 
-	nearByInfrastructure: [Infrastructure] 
-	stopAddress: String 
-	stopPhone: Int 
-	stopName: String 
-}  
-type BicingStation implements Infrastructure{ 
-	InfrastructureType: String! 
-	locatedIn: GeographicalCoordinate! 
-	nearByInfrastructure: [Infrastructure] 
-	stationStreetName: String! 
-	stationType: String! 
-	stationBikesNumber: Int!
-	stationID: ID! 
-	stationAltitude: Float! 
-	stationSlotsNumber: Int! 
-	stationStreetNumber: Int! 
-	nearByStation: [BicingStation] 
-	stationStatus: String! 
-}  
-type Suburb { 
-	suburbName: String! 
-	belongsTo: District! 
-	providesStop: [MetroAndBusStop] 
-}  
-type Query { 
-	allGeographicalCoordinates: [GeographicalCoordinate] 
-	getGeographicalCoordinate(id: String!): GeographicalCoordinate 
-	allDistricts: [District] 
-	getDistrict(id: String!): District 
-	allMetroAndBusStops: [MetroAndBusStop] 
-	getMetroAndBusStop(id: String!): MetroAndBusStop 
-	allBicingStations: [BicingStation] 
-	getBicingStation(id: String!): BicingStation 
-	allSuburbs: [Suburb] 
-	getSuburb(id: String!): Suburb 
-} 
-schema { 
-	query: Query 
-} 
+type MetroAndBusStop implements Infrastructure{
+	locatedIn : GeographicalCoordinate!
+	nearByInfrastructure : [Infrastructure]
+	InfrastructureType: String!
+	stopName : String!
+	stopPhone : Int
+	stopAddress : String
+}
+
+type Suburb {
+	belongsTo : District!
+	providesStop : [MetroAndBusStop]
+	suburbName : String!
+}
+
+type GeographicalCoordinate {
+	latitude : Float!
+	longitude : Float!
+}
+
+type BicingStation implements Infrastructure{
+	locatedIn : GeographicalCoordinate!
+	nearByInfrastructure : [Infrastructure]
+	InfrastructureType: String!
+	stationBikesNumber : Int!
+	nearByStation : [BicingStation]
+	stationStreetNumber : Int!
+	stationType : String!
+	stationStatus : String!
+	stationSlotsNumber : Int!
+	stationID : ID!
+	stationAltitude : Float!
+	stationStreetName : String!
+}
+
+type District {
+	districtName : String!
+	districtNumber : Int!
+}
+
+interface Infrastructure {
+	InfrastructureType: String!
+	locatedIn : GeographicalCoordinate!
+	nearByInfrastructure : [Infrastructure]
+}
+
+type Query {
+	allMetroAndBusStops: [MetroAndBusStop]
+	getMetroAndBusStop(id: String!): MetroAndBusStop
+	allSuburbs: [Suburb]
+	getSuburb(id: String!): Suburb
+	allGeographicalCoordinates: [GeographicalCoordinate]
+	getGeographicalCoordinate(id: String!): GeographicalCoordinate
+	allBicingStations: [BicingStation]
+	getBicingStation(id: String!): BicingStation
+	allDistricts: [District]
+	getDistrict(id: String!): District
+}
+schema {
+	query: Query
+}
+
  

@@ -17,8 +17,8 @@ public class BicingStationRepository {
   public BicingStationRepository() {
     BicingStations = new ArrayList<>();
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/BicingStation>}."
+    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Example101> WHERE {"
+    + " ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/BicingStation>."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);

@@ -17,19 +17,24 @@ public class Suburb {
     this.idTurtle = idTurtle;
   }
 
-  public String getSuburbName() {
-    return modifyScalarValue(connectVirtuoso("http://www.example.com/suburbName").get(0));
-  }
-
   public District getBelongsTo() {
-    return new District(connectVirtuoso("http://www.example.com/belongsTo").get(0));
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/belongsTo") ;
+    if(result.size() == 0) return null;
+    else return new District(result.get(0));
   }
 
   public ArrayList<MetroAndBusStop> getProvidesStop() {
     ArrayList<String> providesStop = connectVirtuoso("http://www.example.com/providesStop");
     ArrayList<MetroAndBusStop> providesStops = new ArrayList<>();
     for(String id:providesStop) providesStops.add(new MetroAndBusStop(id));
-    return providesStops;
+    if(providesStops.size() == 0) return null;
+    else return providesStops;
+  }
+
+  public String getSuburbName() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/suburbName") ;
+    if(result.size() == 0) return null;
+    else return modifyScalarValue(result.get(0));
   }
 
   private String modifyScalarValue(String value) {
@@ -40,8 +45,8 @@ public class Suburb {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    + " <"+ this.getIdTurtle() +"> <"+  value + "> ?valor."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -59,8 +64,8 @@ public class Suburb {
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);

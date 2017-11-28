@@ -18,12 +18,16 @@ public class District {
     this.idTurtle = idTurtle;
   }
 
-  public Integer getDistrictNumber() {
-    return Integer.parseInt(modifyScalarValue(connectVirtuoso("http://www.example.com/districtNumber").get(0)));
+  public String getDistrictName() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/districtName") ;
+    if(result.size() == 0) return null;
+    else return modifyScalarValue(result.get(0));
   }
 
-  public String getDistrictName() {
-    return modifyScalarValue(connectVirtuoso("http://www.example.com/districtName").get(0));
+  public Integer getDistrictNumber() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/districtNumber") ;
+    if(result.size() == 0) return null;
+    else return Integer.parseInt(modifyScalarValue(result.get(0)));
   }
 
   private String modifyScalarValue(String value) {
@@ -34,8 +38,8 @@ public class District {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { <"+ this.getIdTurtle() +"> <"+  value + "> ?valor}."
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    + " <"+ this.getIdTurtle() +"> <"+  value + "> ?valor."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -53,8 +57,8 @@ public class District {
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example4> WHERE {"
-    + "OPTIONAL { <"+ id +"> <"+  value + "> ?valor}."
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
