@@ -761,6 +761,7 @@ public class Main {
 	        user = prop.getProperty("user");
 	        password = prop.getProperty("password");
 	        graphName = prop.getProperty("graphName");
+	        if(graphName.isEmpty()) graphName = "TFG";
 	        url_hostlist = prop.getProperty("url_hostlist");
 	        
 	        dataBase = prop.getProperty("dbName");
@@ -770,6 +771,7 @@ public class Main {
 	        locationApiGraphQL = prop.getProperty("locationApiGraphQL");
 	        
 	        packageDestination = prop.getProperty("packageDestination");
+	        if(packageDestination.isEmpty()) graphName = "com.TFG.servidorGraphQL";
 
 	    } catch (IOException ex) {
 	        ex.printStackTrace();
