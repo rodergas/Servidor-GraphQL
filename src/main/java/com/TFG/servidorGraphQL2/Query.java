@@ -1,4 +1,4 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL2;
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver;
 import java.lang.String;

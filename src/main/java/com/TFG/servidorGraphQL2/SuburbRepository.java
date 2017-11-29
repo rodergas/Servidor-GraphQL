@@ -1,4 +1,4 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL2;
 
 import java.lang.String;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ public class SuburbRepository {
   public SuburbRepository() {
     Suburbs = new ArrayList<>();
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Config> WHERE {"
     + " ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/Suburb>."
     + "}");
      

@@ -1,4 +1,4 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL2;
 
 import java.lang.Float;
 import java.lang.String;
@@ -38,7 +38,7 @@ public class GeographicalCoordinate {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Config> WHERE {"
     + " <"+ this.getIdTurtle() +"> <"+  value + "> ?valor."
     + "}");
      
@@ -57,7 +57,7 @@ public class GeographicalCoordinate {
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Config> WHERE {"
     + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      

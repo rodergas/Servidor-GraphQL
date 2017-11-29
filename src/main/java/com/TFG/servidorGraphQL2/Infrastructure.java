@@ -1,4 +1,4 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL2;
 
 import java.util.ArrayList;
 

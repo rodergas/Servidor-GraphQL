@@ -1,4 +1,4 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL2;
 
 import com.coxautodev.graphql.tools.SchemaParser;
 import graphql.servlet.SimpleGraphQLServlet;
@@ -8,7 +8,7 @@ import javax.servlet.annotation.WebServlet;
 public class GraphQLEndPoint extends SimpleGraphQLServlet {
   public GraphQLEndPoint() {
     super(SchemaParser.newParser()
-    .file("ejemplo.graphqls")
+    .file("esquema.graphqls")
     .resolvers(new Query(new MetroAndBusStopRepository(), new SuburbRepository(), new BicingStationRepository(), new GeographicalCoordinateRepository(), new DistrictRepository()))
     .build()
     .makeExecutableSchema());}

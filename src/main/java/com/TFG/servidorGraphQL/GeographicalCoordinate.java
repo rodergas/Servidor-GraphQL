@@ -1,6 +1,6 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL;
 
-import java.lang.Integer;
+import java.lang.Float;
 import java.lang.String;
 import java.util.ArrayList;
 import org.apache.jena.query.Query;
@@ -11,23 +11,23 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class District {
+public class GeographicalCoordinate {
   private String idTurtle;
 
-  public District(String idTurtle) {
+  public GeographicalCoordinate(String idTurtle) {
     this.idTurtle = idTurtle;
   }
 
-  public String getDistrictName() {
-    ArrayList<String> result = connectVirtuoso("http://www.example.com/districtName") ;
+  public Float getLatitude() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/latitude") ;
     if(result.size() == 0) return null;
-    else return modifyScalarValue(result.get(0));
+    else return Float.parseFloat(modifyScalarValue(result.get(0)));
   }
 
-  public Integer getDistrictNumber() {
-    ArrayList<String> result = connectVirtuoso("http://www.example.com/districtNumber") ;
+  public Float getLongitude() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/longitude") ;
     if(result.size() == 0) return null;
-    else return Integer.parseInt(modifyScalarValue(result.get(0)));
+    else return Float.parseFloat(modifyScalarValue(result.get(0)));
   }
 
   private String modifyScalarValue(String value) {
@@ -38,7 +38,7 @@ public class District {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Config> WHERE {"
     + " <"+ this.getIdTurtle() +"> <"+  value + "> ?valor."
     + "}");
      
@@ -57,7 +57,7 @@ public class District {
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Config> WHERE {"
     + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      

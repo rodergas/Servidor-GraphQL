@@ -1,5 +1,6 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL;
 
+import java.lang.Integer;
 import java.lang.String;
 import java.util.ArrayList;
 import org.apache.jena.query.Query;
@@ -10,31 +11,34 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class Suburb {
+public class District extends SuburbDistrict {
   private String idTurtle;
 
-  public Suburb(String idTurtle) {
+  public District(String idTurtle) {
     this.idTurtle = idTurtle;
   }
 
-  public District getBelongsTo() {
-    ArrayList<String> result = connectVirtuoso("http://www.example.com/belongsTo") ;
-    if(result.size() == 0) return null;
-    else return new District(result.get(0));
+  public ArrayList<ArrayList<String>> getDistrictNestedList() {
+	  ArrayList<ArrayList<String>> result = new ArrayList<>();
+	  ArrayList<String> one = new ArrayList<>();
+	  ArrayList<String> two = new ArrayList<>();
+	  one.add("a"); one.add("b"); one.add("c");
+	  two.add("d"); two.add("e"); two.add("f");
+	  result.add(one); result.add(two);
+	  
+	  return result;
   }
 
-  public ArrayList<MetroAndBusStop> getProvidesStop() {
-    ArrayList<String> providesStop = connectVirtuoso("http://www.example.com/providesStop");
-    ArrayList<MetroAndBusStop> providesStops = new ArrayList<>();
-    for(String id:providesStop) providesStops.add(new MetroAndBusStop(id));
-    if(providesStops.size() == 0) return null;
-    else return providesStops;
-  }
-
-  public String getSuburbName() {
-    ArrayList<String> result = connectVirtuoso("http://www.example.com/suburbName") ;
+  public String getDistrictName() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/districtName") ;
     if(result.size() == 0) return null;
     else return modifyScalarValue(result.get(0));
+  }
+
+  public Integer getDistrictNumber() {
+    ArrayList<String> result = connectVirtuoso("http://www.example.com/districtNumber") ;
+    if(result.size() == 0) return null;
+    else return Integer.parseInt(modifyScalarValue(result.get(0)));
   }
 
   private String modifyScalarValue(String value) {
@@ -45,7 +49,7 @@ public class Suburb {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Config> WHERE {"
     + " <"+ this.getIdTurtle() +"> <"+  value + "> ?valor."
     + "}");
      
@@ -64,7 +68,7 @@ public class Suburb {
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Example101> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/Config> WHERE {"
     + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      

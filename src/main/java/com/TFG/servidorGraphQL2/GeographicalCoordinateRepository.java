@@ -1,4 +1,4 @@
-package com.howtographql.hackernews;
+package com.TFG.servidorGraphQL2;
 
 import java.lang.String;
 import java.util.ArrayList;
@@ -11,14 +11,14 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class BicingStationRepository {
-  private final List<BicingStation> BicingStations;
+public class GeographicalCoordinateRepository {
+  private final List<GeographicalCoordinate> GeographicalCoordinates;
 
-  public BicingStationRepository() {
-    BicingStations = new ArrayList<>();
+  public GeographicalCoordinateRepository() {
+    GeographicalCoordinates = new ArrayList<>();
     VirtGraph graph = new VirtGraph ("TFG_Example1", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Example101> WHERE {"
-    + " ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/BicingStation>."
+    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/Config> WHERE {"
+    + " ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/GeographicalCoordinate>."
     + "}");
      
     VirtuosoQueryExecution vqe = VirtuosoQueryExecutionFactory.create (sparql, graph);
@@ -26,17 +26,17 @@ public class BicingStationRepository {
     while(res.hasNext()){
     	 QuerySolution qs = res.next();
     	 String subject = qs.get("?subject").toString();
-    	 BicingStations.add(new BicingStation(subject));
+    	 GeographicalCoordinates.add(new GeographicalCoordinate(subject));
     }
 
     graph.close();
   }
 
-  public List<BicingStation> getAllBicingStations() {
-    return BicingStations;
+  public List<GeographicalCoordinate> getAllGeographicalCoordinates() {
+    return GeographicalCoordinates;
   }
 
-  public BicingStation getBicingStation(String id) {
-    return new BicingStation(id);
+  public GeographicalCoordinate getGeographicalCoordinate(String id) {
+    return new GeographicalCoordinate(id);
   }
 }

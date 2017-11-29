@@ -1,3 +1,5 @@
+union SuburbDistrict = Suburb | District
+
 type MetroAndBusStop implements Infrastructure{
 	locatedIn : GeographicalCoordinate!
 	nearByInfrastructure : [Infrastructure]
@@ -34,6 +36,7 @@ type BicingStation implements Infrastructure{
 }
 
 type District {
+	districtNestedList : [[String]]
 	districtName : String!
 	districtNumber : Int!
 }
@@ -60,4 +63,3 @@ schema {
 	query: Query
 }
 
- 
