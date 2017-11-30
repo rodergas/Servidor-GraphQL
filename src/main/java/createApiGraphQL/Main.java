@@ -233,7 +233,7 @@ public class Main {
 		if(mod != null){
 			if(mod.getClass().equals(List.class)){ combination = combination + "]"; ++contadorClaudators;}
 			else if(mod.getClass().equals(NonNull.class)) combination = combination + "!";
-			if(mod.getCombinedWith().size() > 0){		
+			if(mod.getCombinedWith() != null && mod.getCombinedWith().size() > 0){		
 				for(Modificador combined : mod.getCombinedWith()){		
 					if(combined.getClass().equals(List.class)){ combination = combination + "]"; ++contadorClaudators;}
 					else if(combined.getClass().equals(NonNull.class)) combination = combination + "!";
@@ -801,11 +801,6 @@ public class Main {
 		for(Object o : createdObjects){
 			//No interface
 			if(!o.isInterface()){
-				for(String subClassOf : o.getSubClassOf()){
-					for(Object inter : createdObjects){
-						if(inter.getName().equals(subClassOf)) o.getFields().addAll(inter.getFields());
-					}
-				}
 				createType(o,interfaces);
 				createRepository(o);
 				Integer index = o.getName().lastIndexOf("/");
@@ -824,7 +819,6 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		
 	    Properties prop = new Properties();
-	   // InputStream input = Main.class.getResourceAsStream("config.properties");
 	    
 	    File file = new File("src/main/resources/config.properties");
 	    InputStream input = new FileInputStream(file);
@@ -871,7 +865,6 @@ public class Main {
 		graph.close();
 
 		
-		System.out.println(destinationPathApiGraphQL);
 		File newTextFile = new File(destinationPathApiGraphQL);
 
         FileWriter fw = new FileWriter(newTextFile);
@@ -902,7 +895,8 @@ public class Main {
         				for(String subClassOf : o.getSubClassOf()){
         					for(Object searchParent : createdObjects){
         						if(searchParent.getName().equals(subClassOf)){
-        							writeFields(searchParent, fw);
+        							//add Fields of parents to object
+        							o.getFields().addAll(searchParent.getFields());
         	        				index = subClassOf.lastIndexOf("/");
         	        				String shortNameSubClass = subClassOf.substring(index + 1);
         	        				fw.write("	" + shortNameSubClass + "Type: String!" + "\r\n"); //type 
