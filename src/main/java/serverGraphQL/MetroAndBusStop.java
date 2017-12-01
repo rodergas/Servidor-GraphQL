@@ -11,11 +11,9 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
-public class MetroAndBusStop implements Infrastructure {
-  private String idTurtle;
-
+public class MetroAndBusStop extends Infrastructure {
   public MetroAndBusStop(String idTurtle) {
-    this.idTurtle = idTurtle;
+    super(idTurtle);
   }
 
   public String InfrastructureType() {
@@ -40,26 +38,9 @@ public class MetroAndBusStop implements Infrastructure {
     else return modifyScalarValue(result.get(0));
   }
 
-  public GeographicalCoordinate locatedIn() {
-    ArrayList<String> result = connectVirtuoso("http://www.example.com/locatedIn");
-    if(result.size() == 0) return null;
-    else return new GeographicalCoordinate(result.get(0));
-  }
-
-  public ArrayList<Infrastructure> nearByInfrastructure() {
-    ArrayList<String> nearByInfrastructure = connectVirtuoso("http://www.example.com/nearByInfrastructure");
-    ArrayList<Infrastructure> nearByInfrastructures = new ArrayList<>();
-    for(String id: nearByInfrastructure){
-    	 if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/MetroAndBusStop")) nearByInfrastructures.add(new MetroAndBusStop(id)); 
-    	 if(connectVirtuoso("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", id).get(0).equals("http://www.example.com/BicingStation")) nearByInfrastructures.add(new BicingStation(id)); 
-    }
-    if(nearByInfrastructures.size() == 0) return null;
-    else return nearByInfrastructures;
-  }
-
   public ArrayList<String> connectVirtuoso(String value, String id) {
     VirtGraph graph = new VirtGraph ("TFG", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/AAA> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/BBB> WHERE {"
     + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
      
@@ -78,7 +59,7 @@ public class MetroAndBusStop implements Infrastructure {
 
   public ArrayList<String> connectVirtuoso(String value) {
     VirtGraph graph = new VirtGraph ("TFG", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/AAA> WHERE {"
+    Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/BBB> WHERE {"
     + " <"+ this.idTurtle +"> <"+  value + "> ?valor."
     + "}");
      

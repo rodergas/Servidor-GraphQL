@@ -1,16 +1,16 @@
 type MetroAndBusStop implements Infrastructure{
+	locatedIn : GeographicalCoordinate!
+	nearByInfrastructure : [Infrastructure]
 	InfrastructureType: String!
 	stopName : String!
 	stopPhone : Int
 	stopAddress : String
-	locatedIn : GeographicalCoordinate!
-	nearByInfrastructure : [Infrastructure]
 }
 
 type Suburb {
 	belongsTo : District!
 	providesStop : [MetroAndBusStop]
-	suburbName : String!
+	suburbName : String
 }
 
 type GeographicalCoordinate {
@@ -19,6 +19,8 @@ type GeographicalCoordinate {
 }
 
 type BicingStation implements Infrastructure{
+	locatedIn : GeographicalCoordinate!
+	nearByInfrastructure : [Infrastructure]
 	InfrastructureType: String!
 	stationBikesNumber : Int!
 	nearByStation : [BicingStation]
@@ -29,14 +31,12 @@ type BicingStation implements Infrastructure{
 	stationID : ID!
 	stationAltitude : Float!
 	stationStreetName : String!
-	locatedIn : GeographicalCoordinate!
-	nearByInfrastructure : [Infrastructure]
 }
 
 type District {
-	districtNestedList : String
-	districtName : [String!]
-	districtNumber : [[Int]]
+	districtNestedList : [[Infrastructure!]!]
+	districtName : String!
+	districtNumber : Int!
 }
 
 interface Infrastructure {

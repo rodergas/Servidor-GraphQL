@@ -17,7 +17,7 @@ public class SuburbRepository {
   public SuburbRepository() {
     Suburbs = new ArrayList<>();
     VirtGraph graph = new VirtGraph ("TFG", "jdbc:virtuoso://localhost:1111", "dba", "dba");
-    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/AAA> WHERE {"
+    Query sparql = QueryFactory.create("Select ?subject FROM <http://localhost:8890/BBB> WHERE {"
     + " ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.example.com/Suburb>."
     + "}");
      

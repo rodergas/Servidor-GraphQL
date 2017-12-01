@@ -359,76 +359,7 @@ public class Main {
 		else ClassName = ClassName.get("serverGraphQL", name);
 		return ClassName;
 	}
-	static void createInterface(Object o) throws IOException{
 
-			ArrayList<MethodSpec> methods = new ArrayList<>();
-			Integer index = o.getName().lastIndexOf("/");
-			String nameInterface = o.getName().substring(index + 1);
-			for(Field field : o.getFields()){
-				index = field.getName().lastIndexOf("/");
-				String nameField = field.getName().substring(index + 1);
-				
-				index = field.getRange().lastIndexOf("/");
-				String rangeField = field.getRange().substring(index + 1);
-				
-				ClassName className = getClassName(rangeField);
-				ClassName arrayList = ClassName.get("java.util", "ArrayList");
-				TypeName listOfClassName = ParameterizedTypeName.get(arrayList, className);
-				TypeName nestedListOfClassName = ParameterizedTypeName.get(arrayList, listOfClassName);
-				
-				MethodSpec.Builder methodBuild = MethodSpec.methodBuilder(nameField)
-					    .addModifiers(Modifier.PUBLIC);
-				
-				//See if its [], [[]] or nothing
-				int contadorList = 0;
-				if(field.getModifier() != null){
-					if(field.getModifier().getClass().equals(List.class)) ++contadorList;
-					if(field.getModifier().getCombinedWith() != null){
-						for(Modificador m : field.getModifier().getCombinedWith()){
-							if(m.getClass().equals(List.class)) ++contadorList;
-						}
-					}
-				}
-				
-				boolean list = false;
-				boolean nestedList = false;
-				if(contadorList == 2) nestedList = true;
-				else if(contadorList == 1) list = true;
-				
-				if(nestedList)methodBuild.returns( nestedListOfClassName );
-				else if(list)methodBuild.returns( listOfClassName );
-				else methodBuild.returns(className);
-				
-				methodBuild.addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT);
-				MethodSpec method = methodBuild.build();
-				methods.add(method);
-
-				
-			}
-			
-			MethodSpec method = MethodSpec.methodBuilder(nameInterface + "Type")
-				    .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-				    .returns(ClassName.get("java.lang", "String"))
-				    .build();
-			methods.add(method);
-
-			TypeSpec.Builder builder = TypeSpec.interfaceBuilder(nameInterface)
-				    .addModifiers(Modifier.PUBLIC);			
-
-			for(MethodSpec m : methods){
-				builder.addMethod(m);
-			}
-			
-			TypeSpec typeSpec = builder.build();
-			
-			JavaFile javaFile = JavaFile.builder("serverGraphQL", typeSpec)
-				    .build();
-
-			javaFile.writeTo(new File(fileDestination));	
-			
-		
-		
-	}
 	static void createType(Object o, HashMap<String, ArrayList<String>> interfaces) throws IOException{
 		
 		ArrayList<MethodSpec> methods = new ArrayList<>();
@@ -436,28 +367,43 @@ public class Main {
 		String nameObject = o.getName().substring(index + 1);
 		
 		TypeSpec.Builder builderType = TypeSpec.classBuilder(nameObject)
-		.addModifiers(Modifier.PUBLIC)
-		.addField(String.class, "idTurtle", Modifier.PRIVATE);
+		.addModifiers(Modifier.PUBLIC);
+		
+		if(o.isInterface()) builderType.addField(String.class, "idTurtle", Modifier.PROTECTED);
+		else if(o.getSubClassOf().isEmpty() && !o.isInterface()) builderType.addField(String.class, "idTurtle", Modifier.PRIVATE);
 		
 		//Constructor
-		
-		MethodSpec method = MethodSpec.constructorBuilder()
+		MethodSpec.Builder methodConstructor = MethodSpec.constructorBuilder()
 			    .addModifiers(Modifier.PUBLIC)
-			    .addParameter(String.class, "idTurtle")
-			    .addStatement("this.$N = $N", "idTurtle", "idTurtle")
-			    .build();
-		methods.add(method);
+			    .addParameter(String.class, "idTurtle");
 		
+		if(!o.getSubClassOf().isEmpty() && !o.isInterface())methodConstructor.addStatement("super($L)", "idTurtle");
+		else methodConstructor.addStatement("this.$L = $L", "idTurtle", "idTurtle");
 		
+		methods.add(methodConstructor.build());
+
 		
-		// InfrastrustureType : String
+		// InfrastrustureType : String on interface
+		if(o.isInterface()){
+			index = o.getName().lastIndexOf("/");
+			String nameInterface= o.getName().substring(index + 1);
+			
+			
+			MethodSpec method = MethodSpec.methodBuilder( nameInterface + "Type")
+				    .addModifiers(Modifier.PUBLIC)
+				    .returns(ClassName.get("java.lang", "String"))
+				    .addStatement("return $S", nameObject)
+				    .build();
+			methods.add(method);
+		}
+		// InfrastrustureType : String on subClasses
 		for(String subClass : o.getSubClassOf()){
 			index = subClass.lastIndexOf("/");
 			String nameSubClass= subClass.substring(index + 1);
 			
-			builderType.addSuperinterface(ClassName.get("serverGraphQL", nameSubClass));
+			builderType.superclass(ClassName.get("serverGraphQL", nameSubClass));
 			
-			method = MethodSpec.methodBuilder( nameSubClass + "Type")
+			MethodSpec method = MethodSpec.methodBuilder( nameSubClass + "Type")
 				    .addModifiers(Modifier.PUBLIC)
 				    .returns(ClassName.get("java.lang", "String"))
 				    .addStatement("return $S", nameObject)
@@ -523,7 +469,28 @@ public class Main {
 				}else if(nestedList){
 					//AAA : [[Int]]
 					methodBuild.returns(nestedListOfClassName);
-					methodBuild.addStatement("return null");
+					methodBuild.addStatement("ArrayList<ArrayList<$L>> result = new ArrayList<>()", rangeField);
+					methodBuild.addStatement("$T<String> valuesOfLists = new ArrayList<>()", arrayList);
+					methodBuild.addStatement("$T<String> $L = connectVirtuoso(\"$L\")", arrayList, nameField, field.getName());
+					methodBuild.addCode("for(String value:$L) { \n", nameField);
+					methodBuild.addCode("\t ArrayList<String> lists = connectVirtuoso(\"http://www.essi.upc.edu/~jvarga/gql/hasElement\", value); \n");
+					methodBuild.addCode("\t for(String list:lists){ \n");
+					methodBuild.addCode("\t \t valuesOfLists = connectVirtuoso(\"http://www.essi.upc.edu/~jvarga/gql/hasElement\", list); \n");
+					
+					methodBuild.addStatement("\t \t $T<$L> correctValuesOfLists = new ArrayList<>()", arrayList, rangeField);
+					if(rangeField.equals("String")) methodBuild.addStatement("\t \t for(String valueOfList :valuesOfLists) $L.add(modifyScalarValue(valueOfList))", "correctValuesOfLists");
+			    	else if(rangeField.equals("Integer")) methodBuild.addStatement("\t \t for(String valueOfList :valuesOfLists) $L.add($L.parse$L(modifyScalarValue(valueOfList)))", "correctValuesOfLists", rangeField, "Int");
+			    	else methodBuild.addStatement("\t \t for(String valueOfList : valuesOfLists) $L.add($L.parse$L(modifyScalarValue(valueOfList)))", "correctValuesOfLists", rangeField, rangeField);
+					
+					methodBuild.addStatement("\t \t result.add(correctValuesOfLists)");
+					methodBuild.addCode("\t } \n");
+					methodBuild.addCode("} \n");
+					
+					
+					methodBuild.addStatement("if(result.size() == 0) return null");
+					methodBuild.addStatement("else return result");
+					
+
 				}
 			}else if(field.getClass().equals(ObjectField.class)){
 				if(!interfaces.containsKey(field.getRange())){
@@ -544,7 +511,26 @@ public class Main {
 					}else if(nestedList){
 						// AAA : [[District]]
 						methodBuild.returns(nestedListOfClassName);
-						methodBuild.addStatement("return null");
+						
+						methodBuild.addStatement("ArrayList<ArrayList<$L>> result = new ArrayList<>()", rangeField);
+						methodBuild.addStatement("$T<String> valuesOfLists = new ArrayList<>()", arrayList);
+						methodBuild.addStatement("$T<String> $L = connectVirtuoso(\"$L\")", arrayList, nameField, field.getName());
+						methodBuild.addCode("for(String value:$L) { \n", nameField);
+						methodBuild.addCode("\t ArrayList<String> lists = connectVirtuoso(\"http://www.essi.upc.edu/~jvarga/gql/hasElement\", value); \n");
+						methodBuild.addCode("\t for(String list:lists){ \n");
+						methodBuild.addCode("\t \t valuesOfLists = connectVirtuoso(\"http://www.essi.upc.edu/~jvarga/gql/hasElement\", list); \n");
+						
+						methodBuild.addStatement("\t \t $T<$L> correctValuesOfLists = new ArrayList<>()", arrayList, rangeField);
+						methodBuild.addStatement("\t \t for(String valueOfList :valuesOfLists) $L.add(new $L(valueOfList))", "correctValuesOfLists", rangeField);
+
+						methodBuild.addStatement("\t \t result.add(correctValuesOfLists)");
+						methodBuild.addCode("\t } \n");
+						methodBuild.addCode("} \n");
+						
+						
+						methodBuild.addStatement("if(result.size() == 0) return null");
+						methodBuild.addStatement("else return result");
+						
 					}
 				}else{
 					if(!list && !nestedList){
@@ -583,12 +569,36 @@ public class Main {
 					}else if(nestedList){
 						// AAA : [[Infrastructure]]
 						methodBuild.returns(nestedListOfClassName);
-						methodBuild.addStatement("return null");
+						methodBuild.addStatement("ArrayList<ArrayList<$L>> result = new ArrayList<>()", rangeField);
+						methodBuild.addStatement("$T<String> valuesOfLists = new ArrayList<>()", arrayList);
+						methodBuild.addStatement("$T<String> $L = connectVirtuoso(\"$L\")", arrayList, nameField, field.getName());
+						methodBuild.addCode("for(String value:$L) { \n", nameField);
+						methodBuild.addCode("\t ArrayList<String> lists = connectVirtuoso(\"http://www.essi.upc.edu/~jvarga/gql/hasElement\", value); \n");
+						methodBuild.addCode("\t for(String list:lists){ \n");
+						methodBuild.addCode("\t \t valuesOfLists = connectVirtuoso(\"http://www.essi.upc.edu/~jvarga/gql/hasElement\", list); \n");
+						
+						methodBuild.addStatement("\t \t $T<$L> correctValuesOfLists = new ArrayList<>()", arrayList, rangeField);
+						methodBuild.addCode("\t \t for(String valueOfList :valuesOfLists){ \n");
+						
+						for(String possibleOption : interfaces.get(field.getRange())){
+							index = possibleOption.lastIndexOf("/");
+							String shortNamePossibleOption = possibleOption.substring(index + 1);
+							methodBuild.addCode("\t \t \t if(connectVirtuoso(\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\", valueOfList).get(0).equals(\"$L\")) $L.add(new $L(valueOfList)); \n",possibleOption , "correctValuesOfLists", shortNamePossibleOption );
+						}
+						
+						methodBuild.addCode("\t \t }\n");
+						methodBuild.addStatement("\t \t result.add(correctValuesOfLists)");
+						methodBuild.addCode("\t } \n");
+						methodBuild.addCode("} \n");
+						
+						
+						methodBuild.addStatement("if(result.size() == 0) return null");
+						methodBuild.addStatement("else return result");
 					}
 				}
 			}
 			
-			method = methodBuild.build();
+			MethodSpec method = methodBuild.build();
 			methods.add(method);
 			
 		}
@@ -799,15 +809,12 @@ public class Main {
 	static void createServer(ArrayList<Object> createdObjects, HashMap<String, ArrayList<String>> interfaces) throws IOException{
 		ArrayList<String> repositories = new ArrayList<>();
 		for(Object o : createdObjects){
-			//No interface
+			createType(o,interfaces);
 			if(!o.isInterface()){
-				createType(o,interfaces);
 				createRepository(o);
 				Integer index = o.getName().lastIndexOf("/");
 				String nameObjectRepository = o.getName().substring(index + 1);
 				repositories.add(nameObjectRepository);
-			}else{
-				createInterface(o);
 			}
 		}
 		buildQuery(repositories);
@@ -896,7 +903,8 @@ public class Main {
         					for(Object searchParent : createdObjects){
         						if(searchParent.getName().equals(subClassOf)){
         							//add Fields of parents to object
-        							o.getFields().addAll(searchParent.getFields());
+        							//o.getFields().addAll(searchParent.getFields());
+        							writeFields(searchParent, fw);
         	        				index = subClassOf.lastIndexOf("/");
         	        				String shortNameSubClass = subClassOf.substring(index + 1);
         	        				fw.write("	" + shortNameSubClass + "Type: String!" + "\r\n"); //type 
