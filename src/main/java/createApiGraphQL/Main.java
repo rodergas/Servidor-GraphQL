@@ -61,7 +61,7 @@ import virtuoso.jena.driver.*;
 
 public class Main {
 	
-	static String dbName, user, password, graphName, url_hostlist;
+	static String dbName, user, password, url_hostlist;
 	
 	static private String fileDestination = Paths.get("./src/main/java").toAbsolutePath().normalize().toString();
 	static private String destinationPathApiGraphQL = Paths.get("./src/main/resources/esquema.graphqls").toAbsolutePath().normalize().toString();
@@ -292,7 +292,7 @@ public class Main {
 		
 		MethodSpec method = MethodSpec.methodBuilder("connectVirtuoso")
 				.addParameter(String.class, "value")
-				.addCode("$T graph = new $T (\"$L\", \"$L\", \"$L\", \"$L\");\n", VirtGraph , VirtGraph, graphName, url_hostlist, user, password)
+				.addCode("$T graph = new $T (\"$L\", \"$L\", \"$L\");\n", VirtGraph , VirtGraph, url_hostlist, user, password)
 				.addCode("$T sparql = $T.create(\"Select ?valor FROM <$L> WHERE {\"\n", Query, QueryFactory, dbName)
 				.addCode("+ \" <\"+ this.idTurtle +\"> <\"+  value + \"> ?valor.\"\n")
 				.addCode("+ \"}\");\n \n")
@@ -330,7 +330,7 @@ public class Main {
 		MethodSpec method = MethodSpec.methodBuilder("connectVirtuoso")
 				.addParameter(String.class, "value")
 				.addParameter(String.class, "id")
-				.addCode("$T graph = new $T (\"$L\", \"$L\", \"$L\", \"$L\");\n", VirtGraph , VirtGraph, graphName, url_hostlist, user, password)
+				.addCode("$T graph = new $T (\"$L\", \"$L\", \"$L\");\n", VirtGraph , VirtGraph, url_hostlist, user, password)
 				.addCode("$T sparql = $T.create(\"Select ?valor FROM <$L> WHERE {\"\n", Query, QueryFactory, dbName)
 				.addCode("+ \" <\"+ id +\"> <\"+  value + \"> ?valor.\"\n")
 				.addCode("+ \"}\");\n \n")
@@ -634,7 +634,7 @@ public class Main {
 		
 		MethodSpec method = MethodSpec.constructorBuilder()
 				.addCode("$L = new $T<>();\n", shortNameObject + "s", ArrayList)
-				.addCode("$T graph = new $T (\"$L\", \"$L\", \"$L\", \"$L\");\n", VirtGraph , VirtGraph, graphName, url_hostlist, user, password)
+				.addCode("$T graph = new $T (\"$L\", \"$L\", \"$L\");\n", VirtGraph , VirtGraph,  url_hostlist, user, password)
 				.addCode("$T sparql = $T.create(\"Select ?subject FROM <$L> WHERE {\"\n", Query, QueryFactory, dbName)
 				.addCode("+ \" ?subject <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$L>.\"\n", nameObject)
 				.addCode("+ \"}\");\n \n")
@@ -838,8 +838,7 @@ public class Main {
 	        user = prop.getProperty("user");
 	        password = prop.getProperty("password");
 	        
-	        graphName = prop.getProperty("graphName");
-	        if(graphName.isEmpty()) graphName = "TFG";
+
 	        url_hostlist = prop.getProperty("url_hostlist");
 	        
 	        dbName = prop.getProperty("dbName");
@@ -856,7 +855,7 @@ public class Main {
 	        }
 	    }
 		
-		VirtGraph graph = new VirtGraph (graphName, url_hostlist, user, password);
+		VirtGraph graph = new VirtGraph (url_hostlist, user, password);
 
 		graph.clear ();
 

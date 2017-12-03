@@ -78,7 +78,7 @@ public class BicingStation extends Infrastructure {
   }
 
   public ArrayList<String> connectVirtuoso(String value, String id) {
-    VirtGraph graph = new VirtGraph ("TFG", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    VirtGraph graph = new VirtGraph ("jdbc:virtuoso://localhost:1111", "dba", "dba");
     Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/BBB> WHERE {"
     + " <"+ id +"> <"+  value + "> ?valor."
     + "}");
@@ -97,7 +97,7 @@ public class BicingStation extends Infrastructure {
   }
 
   public ArrayList<String> connectVirtuoso(String value) {
-    VirtGraph graph = new VirtGraph ("TFG", "jdbc:virtuoso://localhost:1111", "dba", "dba");
+    VirtGraph graph = new VirtGraph ("jdbc:virtuoso://localhost:1111", "dba", "dba");
     Query sparql = QueryFactory.create("Select ?valor FROM <http://localhost:8890/BBB> WHERE {"
     + " <"+ this.idTurtle +"> <"+  value + "> ?valor."
     + "}");
